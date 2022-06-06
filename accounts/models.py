@@ -3,7 +3,6 @@ from django.db import models
 
 
 class User(AbstractUser):
-    pass
-
+    email = models.EmailField(max_length=254)
 #class FriendShip(models.Model):
 #    pass
