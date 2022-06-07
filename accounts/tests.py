@@ -77,13 +77,13 @@ class TestSignUpView(TestCase):
 
     def test_failure_post_with_duplicated_user(self):
         post1 ={
-            'email' : 'test@example.com',
+            'email' : 'test1@example.com',
             'username' : 'test',
             'password1' : 'goodpass',
             'password2' : 'goodpass',
         }
         post2 ={
-            'email' : 'test@example.com',
+            'email' : 'test2@example.com',
             'username' : 'test',
             'password1' : 'goodpass',
             'password2' : 'goodpass',
@@ -91,7 +91,8 @@ class TestSignUpView(TestCase):
         self.client.post(reverse('accounts:signup'), post1)#1人目を登録
         response = self.client.post(reverse('accounts:signup'), post2)#2人目のレスポンスを取得
         self.assertEqual(response.status_code, 200)
-        #self.assertFalse(User.objects.filter(username = 'test',email = 'test@example.com').exists())#追加されていないことを確認
+        self.assertFalse(User.objects.filter(username = 'test',email = 'test2@example.com').exists())#追加されていないことを確認
+        self.assertFormError(response, 'form', 'username', '同じユーザー名が既に登録済みです。')
 
     def test_failure_post_with_invalid_email(self):
         post ={
