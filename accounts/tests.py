@@ -1,7 +1,7 @@
 from django.urls import reverse
 #from urllib import request, response
 from django.test import TestCase
-
+from .models import User
 
 class TestSignUpView(TestCase):
     def test_success_get(self):
@@ -17,7 +17,9 @@ class TestSignUpView(TestCase):
             'password2' : 'goodpass',
         }
         response = self.client.post(reverse('accounts:signup'), post)
+        #actual_post = User.objects.get(username='test')
         self.assertEqual(response.status_code, 302)
+        self.assertTrue(User.objects.filter(username = 'test',email = 'test@example.com').exists())#ユーザーが追加されたかを確認　ついでに正しく登録されているかを確認
 
     def test_failure_post_with_empty_form(self):
         post ={
@@ -26,8 +28,11 @@ class TestSignUpView(TestCase):
             'password1' : '',
             'password2' : '',
         }
+        #form = self.response.context.get('form')
         response = self.client.post(reverse('accounts:signup'),post)
         self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username = '',email = '').exists())#追加されていないことを確認
+
 
     def test_failure_post_with_empty_username(self):
         post ={
@@ -38,6 +43,7 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username = '',email = 'test@example.com').exists())#追加されていないことを確認
 
     def test_failure_post_with_empty_email(self):
         post ={
@@ -48,6 +54,7 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username = 'test',email = '').exists())#追加されていないことを確認
 
     def test_failure_post_with_empty_password(self):
         post ={
@@ -58,6 +65,7 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username = 'test',email = 'test@example.com').exists())#追加されていないことを確認
 
     def test_failure_post_with_duplicated_user(self):
         post1 ={
@@ -75,6 +83,7 @@ class TestSignUpView(TestCase):
         self.client.post(reverse('accounts:signup'), post1)#1人目を登録
         response = self.client.post(reverse('accounts:signup'), post2)#2人目のレスポンスを取得
         self.assertEqual(response.status_code, 200)
+        #self.assertFalse(User.objects.filter(username = 'test',email = 'test@example.com').exists())#追加されていないことを確認
 
     def test_failure_post_with_invalid_email(self):
         post ={
@@ -85,7 +94,7 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
-
+        self.assertFalse(User.objects.filter(username = 'test',email = 'test.boo').exists())#追加されていないことを確認
     def test_failure_post_with_too_short_password(self):
         post ={
             'email' : 'test@example.com',
@@ -95,6 +104,7 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username = 'test',email = 'test@example.com').exists())#追加されていないことを確認
 
     def test_failure_post_with_password_similar_to_username(self):
         post ={
@@ -105,6 +115,7 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username = 'test',email = 'test@example.com').exists())#追加されていないことを確認
 
     def test_failure_post_with_only_numbers_password(self):
         post ={
@@ -115,6 +126,7 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username = 'test',email = 'test@example.com').exists())#追加されていないことを確認
 
     def test_failure_post_with_mismatch_password(self):
         post ={
@@ -125,6 +137,7 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
+        self.assertFalse(User.objects.filter(username = 'test',email = 'test@example.com').exists())#追加されていないことを確認
 
 
 class TestHomeView(TestCase):
