@@ -1,5 +1,4 @@
 from django.urls import reverse
-#from urllib import request, response
 from django.test import TestCase
 from .models import User
 
@@ -17,7 +16,6 @@ class TestSignUpView(TestCase):
             'password2' : 'goodpass',
         }
         response = self.client.post(reverse('accounts:signup'), post)
-        #actual_post = User.objects.get(username='test')
         self.assertEqual(response.status_code, 302)
         self.assertTrue(User.objects.filter(username = 'test',email = 'test@example.com').exists())#ユーザーが追加されたかを確認　ついでに正しく登録されているかを確認
 
@@ -28,7 +26,6 @@ class TestSignUpView(TestCase):
             'password1' : '',
             'password2' : '',
         }
-        #form = self.response.context.get('form')
         response = self.client.post(reverse('accounts:signup'),post)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(User.objects.filter(username = '',email = '').exists())#追加されていないことを確認
