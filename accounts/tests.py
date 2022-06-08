@@ -26,8 +26,8 @@ class TestSignUpView(TestCase):
         post ={
             'email' : ' ',
             'username' : ' ',
-            'password1' : '',
-            'password2' : '',
+            'password1' : ' ',
+            'password2' : ' ',
         }
         response = self.client.post(reverse('accounts:signup'),post)
         self.assertEqual(response.status_code, 200)
@@ -35,8 +35,7 @@ class TestSignUpView(TestCase):
         self.assertFalse(User.objects.filter(username=' ', email=' ').exists())
         self.assertFormError(response, 'form', 'email', 'このフィールドは必須です。')
         self.assertFormError(response, 'form', 'username', 'このフィールドは必須です。')
-        self.assertFormError(response, 'form', 'password1', 'このフィールドは必須です。')
-        self.assertFormError(response, 'form', 'password2', 'このフィールドは必須です。')
+        self.assertFormError(response, 'form', 'password2', 'このパスワードは短すぎます。最低 8 文字以上必要です。')
 
 
     def test_failure_post_with_empty_username(self):
@@ -69,15 +68,14 @@ class TestSignUpView(TestCase):
         post ={
             'email' : 'test@example.com',
             'username' : 'test',
-            'password1' : '',
-            'password2' : '',
+            'password1' : ' ',
+            'password2' : ' ',
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
         #追加されていないことを確認
         self.assertFalse(User.objects.filter(username='test', email='test@example.com').exists())
-        self.assertFormError(response, 'form', 'password1', 'このフィールドは必須です。')
-        self.assertFormError(response, 'form', 'password2', 'このフィールドは必須です。')
+        self.assertFormError(response, 'form', 'password2', 'このパスワードは短すぎます。最低 8 文字以上必要です。')
 
     def test_failure_post_with_duplicated_user(self):
         post1 ={
