@@ -1,8 +1,8 @@
 from django.views.generic import TemplateView,CreateView
 from .forms import SignUpForm
 from django.urls import reverse_lazy
-from django.contrib.auth import login
-from django.http import HttpResponseRedirect
+from django.contrib.auth import authenticate,login
+
 
 class SignUpView(CreateView):
     template_name = 'accounts/signup.html'
@@ -10,14 +10,17 @@ class SignUpView(CreateView):
     #クラスベースビューでURL解決する時に使う(renderの代わり？)
     success_url = reverse_lazy('accounts:home')
 
-    def form_valid(self, form):
-        #formの情報を保存
-        user = form.save()
-        #認証
-        login(self.request, user)
-        self.object = user
-        #リダイレクト 
-        return HttpResponseRedirect(self.get_success_url())
+    def form_valid(self,form):
+        response = super().form_valid(form)
+        #formの情報を取得
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password1']
+        user = authenticate(self.request, username=username, password=password)
+        if user is not None:
+            login(self.request, user)
+            #リダイレクト
+            return response 
+        
 
 class WelcomeView(TemplateView):
     template_name = 'welcome/index.html'
