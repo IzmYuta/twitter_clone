@@ -1,7 +1,8 @@
-from django.views.generic import TemplateView,CreateView
-from .forms import SignUpForm
+from django.contrib.auth import authenticate, login
 from django.urls import reverse_lazy
-from django.contrib.auth import authenticate,login
+from django.views.generic import CreateView, TemplateView
+
+from .forms import SignUpForm
 
 
 class SignUpView(CreateView):
