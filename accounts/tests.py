@@ -19,7 +19,6 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 302)
-        #ユーザーが追加されたかを確認　ついでに正しく登録されているかを確認
         self.assertTrue(User.objects.filter(username='test', email='test@example.com').exists())
 
     def test_failure_post_with_empty_form(self):
@@ -31,7 +30,6 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'),post)
         self.assertEqual(response.status_code, 200)
-        #追加されていないことを確認
         self.assertFalse(User.objects.filter(username=' ', email=' ').exists())
         self.assertFormError(response, 'form', 'email', 'このフィールドは必須です。')
         self.assertFormError(response, 'form', 'username', 'このフィールドは必須です。')
@@ -48,7 +46,6 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
-        #追加されていないことを確認
         self.assertFalse(User.objects.filter(username=' ', email='test@example.com').exists())
         self.assertFormError(response, 'form', 'username', 'このフィールドは必須です。')
 
@@ -61,7 +58,6 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
-        #追加されていないことを確認
         self.assertFalse(User.objects.filter(username='test', email=' ').exists())
         self.assertFormError(response, 'form', 'email', 'このフィールドは必須です。')
 
@@ -74,7 +70,6 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
-        #追加されていないことを確認
         self.assertFalse(User.objects.filter(username='test', email='test@example.com').exists())
         self.assertFormError(response, 'form', 'password1', 'このフィールドは必須です。')
         self.assertFormError(response, 'form', 'password2', 'このフィールドは必須です。')
@@ -92,12 +87,9 @@ class TestSignUpView(TestCase):
             'password1' : 'goodpass',
             'password2' : 'goodpass',
         }
-        #1人目を登録
         self.client.post(reverse('accounts:signup'), post1)
-        #2人目のレスポンスを取得
         response = self.client.post(reverse('accounts:signup'), post2)
         self.assertEqual(response.status_code, 200)
-        #追加されていないことを確認
         self.assertFalse(User.objects.filter(username='test', email='test2@example.com').exists())
         self.assertFormError(response, 'form', 'username', '同じユーザー名が既に登録済みです。')
 
@@ -110,7 +102,6 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
-        #追加されていないことを確認
         self.assertFalse(User.objects.filter(username='test', email='test.boo').exists())
         self.assertFormError(response, 'form', 'email', '有効なメールアドレスを入力してください。')
 
@@ -123,7 +114,6 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
-        #追加されていないことを確認
         self.assertFalse(User.objects.filter(username='test', email='test@example.com').exists())
         self.assertFormError(response, 'form', 'password2', 'このパスワードは短すぎます。最低 8 文字以上必要です。')
 
@@ -136,7 +126,6 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
-        #追加されていないことを確認
         self.assertFalse(User.objects.filter(username='test', email='test@example.com').exists())
         self.assertFormError(response, 'form', 'password2', 'このパスワードは ユーザー名 と似すぎています。')
 
@@ -149,7 +138,6 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
-        #追加されていないことを確認
         self.assertFalse(User.objects.filter(username='test', email='test@example.com').exists())
         self.assertFormError(response, 'form', 'password2', 'このパスワードは一般的すぎます。',  'このパスワードは数字しか使われていません。')
 
@@ -163,7 +151,6 @@ class TestSignUpView(TestCase):
         }
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 200)
-        #追加されていないことを確認
         self.assertFalse(User.objects.filter(username='test', email='test@example.com').exists())
         self.assertFormError(response, 'form', 'password2', '確認用パスワードが一致しません。')
 
