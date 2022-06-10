@@ -163,7 +163,9 @@ class TestHomeView(TestCase):
 
 class TestLoginView(TestCase):
     def test_success_get(self):
-        pass
+        response = self.client.get(reverse('accounts:login'))
+        self.assertEqual(response.status_code,200)
+        self.assertTemplateUsed(response, 'accounts/login.html')
 
     def test_success_post(self):
         pass

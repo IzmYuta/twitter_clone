@@ -25,3 +25,6 @@ class WelcomeView(TemplateView):
 
 class HomeView(TemplateView):
     template_name = 'accounts/home.html'
+
+class LoginView(TemplateView):
+    template_name = 'accounts/login.html'
