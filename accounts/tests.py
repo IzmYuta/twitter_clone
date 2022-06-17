@@ -168,7 +168,19 @@ class TestLoginView(TestCase):
         self.assertTemplateUsed(response, 'accounts/login.html')
 
     def test_success_post(self):
-        pass
+        post = {
+            'email' : 'test@example.com',
+            'username' : 'test',
+            'password1' : 'goodpass',
+            'password2' : 'goodpass',
+        }
+        self.client.post(reverse('accounts:signup'), post)
+        loginPost = {
+            'username' : 'test',
+            'password' : 'goodpass',
+        }
+        response = self.client.post(reverse('accounts:login'), loginPost)
+        self.assertEqual(response.status_code, 302)
 
     def test_failure_post_with_not_exists_user(self):
         pass
