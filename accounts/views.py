@@ -48,3 +48,4 @@ class UserProfileView(LoginRequiredMixin, TemplateView):
 
 class LogoutView(LogoutView):
     template_name = 'accounts/logout.html'
+    
