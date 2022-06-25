@@ -193,12 +193,12 @@ class TestLoginView(TestCase):
         }
         self.client.post(reverse('accounts:signup'), post)
         loginPost = {
-            'username' : 'test2',
+            'username' : 'te',
             'password' : 'goodpass',
         }
         response = self.client.post(reverse('accounts:login'), loginPost)
         self.assertEqual(response.status_code, 200)
-        self.assertFormError(response, 'form', 'username', '確認用パスワードが一致しません。')
+        self.assertFormError(response, 'form', '', '正しいユーザー名とパスワードを入力してください。どちらのフィールドも大文字と小文字は区別されます。')
 
 
     def test_failure_post_with_empty_password(self):
