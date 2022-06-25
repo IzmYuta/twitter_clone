@@ -70,5 +70,5 @@ class UserProfileEditView(LoginRequiredMixin, FormView):
         return kwargs
 
 
-class LogoutView(LogoutView):
+class LogoutView(LoginRequiredMixin,LogoutView):
     template_name = 'accounts/logout.html'

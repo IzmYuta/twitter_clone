@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, Client
 from django.urls import reverse
 
 User = get_user_model()
@@ -220,7 +220,9 @@ class TestLoginView(TestCase):
 
 class TestLogoutView(TestCase):
     def test_success_get(self):
-        pass
+        response = self.client.get(reverse('accounts:logout'))
+        self.assertEqual(response.status_code,302)
+        self.assertRedirects(response, reverse('accounts:logout'), status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
 
 
 class TestUserProfileView(TestCase):
