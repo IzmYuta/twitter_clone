@@ -20,6 +20,7 @@ class TestSignUpView(TestCase):
         response = self.client.post(reverse('accounts:signup'), post)
         self.assertEqual(response.status_code, 302)
         self.assertTrue(User.objects.filter(username='test', email='test@example.com').exists())
+        self.assertRedirects(response, reverse('accounts:home'), status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
 
     def test_failure_post_with_empty_form(self):
         post = {
@@ -181,12 +182,40 @@ class TestLoginView(TestCase):
         }
         response = self.client.post(reverse('accounts:login'), loginPost)
         self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('accounts:user_profile'), status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
 
     def test_failure_post_with_not_exists_user(self):
-        pass
+        post = {
+            'email' : 'test@example.com',
+            'username' : 'test',
+            'password1' : 'goodpass',
+            'password2' : 'goodpass',
+        }
+        self.client.post(reverse('accounts:signup'), post)
+        loginPost = {
+            'username' : 'test2',
+            'password' : 'goodpass',
+        }
+        response = self.client.post(reverse('accounts:login'), loginPost)
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response, 'form', 'username', '確認用パスワードが一致しません。')
+
 
     def test_failure_post_with_empty_password(self):
-        pass
+        post = {
+            'email' : 'test@example.com',
+            'username' : 'test',
+            'password1' : 'goodpass',
+            'password2' : 'goodpass',
+        }
+        self.client.post(reverse('accounts:signup'), post)
+        loginPost = {
+            'username' : 'test',
+            'password' : '',
+        }
+        response = self.client.post(reverse('accounts:login'), loginPost)
+        self.assertEqual(response.status_code, 200)
+        self.assertFormError(response, 'form', 'password', 'このフィールドは必須です。')
 
 
 class TestLogoutView(TestCase):
