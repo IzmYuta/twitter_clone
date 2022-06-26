@@ -222,12 +222,28 @@ class TestLogoutView(TestCase):
     def test_success_get(self):
         response = self.client.get(reverse('accounts:logout'))
         self.assertEqual(response.status_code,302)
-        self.assertRedirects(response, reverse('accounts:logout'), status_code=302, target_status_code=200, msg_prefix='', fetch_redirect_response=True)
+        #self.assertEqual(response.url, reverse('accounts:logout'))
 
 
 class TestUserProfileView(TestCase):
+    def setUp(self):
+        post = {
+            'email' : 'test@example.com',
+            'username' : 'test',
+            'password1' : 'goodpass',
+            'password2' : 'goodpass',
+        }
+        self.client.post(reverse('accounts:signup'), post)
+        self.client.login(username='test', password='goodpass')
+
     def test_success_get(self):
+        response = self.client.get(reverse('accounts:user_profile'))
+        self.assertEqual(response.status_code,200)
+        self.assertTemplateUsed(response, 'accounts/profile.html')
+    
+    def test_failure_get_with_not_exists_user(self):
         pass
+
 
 
 class TestUserProfileEditView(TestCase):
