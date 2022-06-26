@@ -1,5 +1,7 @@
 <p>ユーザー名：{{ user.username }}</p>
 <p>メールアドレス：{{ user.email }}</p>
 
-<a href="{% url 'accounts:user_profile_edit' %}">編集</a>
+
+<a href="{% url 'accounts:home' %}">ホーム</a>
+<a href="{% url 'accounts:user_profile_edit' user.pk %}">編集</a>
 <a href="{% url 'accounts:logout' %}">ログアウト</a>

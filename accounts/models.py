@@ -16,6 +16,8 @@ class Profile(models.Model):
 
 # class FriendShip(models.Model):
 #    pass
+
+
 @receiver(post_save, sender=User)
 def post_user_created(sender, instance, created, **kwargs):
     if created:

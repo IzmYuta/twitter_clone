@@ -17,24 +17,7 @@ class LoginForm(AuthenticationForm):
             field.widget.attrs['placeholder'] = field.label
 
 class ProfileEditForm(ModelForm):
+    
     class Meta:
         model = User
-        fields = [
-            'email',
-            'username',
-        ]
-
-    def __init__(self, email=None, username=None, *args, **kwargs):
-        kwargs.setdefault('label_suffix', '')
-        super().__init__(*args, **kwargs)
-        # ユーザーの更新前情報をフォームに挿入
-        if email:
-            self.fields['email'].widget.attrs['value'] = email
-        if username:
-            self.fields['username'].widget.attrs['value'] = username
-
-
-    def update(self, user):
-        user.email = self.cleaned_data['email']
-        user.username = self.cleaned_data['username']
-        user.save()
+        fields = ('username', 'email',)

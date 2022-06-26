@@ -1,11 +1,12 @@
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import LoginView, LogoutView
-from django.urls import reverse_lazy
-from django.views.generic import CreateView, TemplateView, FormView
+from django.urls import reverse_lazy, reverse
+from django.views.generic import CreateView, TemplateView, UpdateView
 
 from .forms import LoginForm, SignUpForm, ProfileEditForm
 
+User = get_user_model()
 
 class SignUpView(CreateView):
     template_name = 'accounts/signup.html'
@@ -44,31 +45,26 @@ class LoginView(LoginView):
             login(self.request, user)
             return response
 
+class LogoutView(LoginRequiredMixin,LogoutView):
+    template_name = 'accounts/login.html'
 
 class UserProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'accounts/profile.html'
     login_url = '/login/'
 
 
-class UserProfileEditView(LoginRequiredMixin, FormView):
+class UserProfileEditView(LoginRequiredMixin, UpdateView):
     template_name = 'accounts/profile_edit.html'
+    model = User
     form_class = ProfileEditForm
     success_url = reverse_lazy('accounts:user_profile')
+ 
+    def get_success_url(self):
+        return reverse('accounts:user_profile', kwargs={'pk': self.object.pk})
+ 
+    def get_form(self):
+        form = super(UserProfileEditView, self).get_form()
+        form.fields['username'].label = 'username'
+        form.fields['email'].label = 'email'
+        return form
 
-    def form_valid(self, form):
-        # formのupdateメソッドにログインユーザーを渡して更新
-        form.update(user=self.request.user)
-        return super().form_valid(form)
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        # 更新前のユーザー情報をkwargsとして渡す
-        kwargs.update({
-            'email': self.request.user.email,
-            'username': self.request.user.username,
-        })
-        return kwargs
-
-
-class LogoutView(LoginRequiredMixin,LogoutView):
-    template_name = 'accounts/logout.html'
