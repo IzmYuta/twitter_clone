@@ -1,5 +1,5 @@
 from django.contrib.auth import authenticate, login, get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, TemplateView, UpdateView
@@ -67,4 +67,6 @@ class UserProfileEditView(LoginRequiredMixin, UpdateView):
         form.fields['username'].label = 'username'
         form.fields['email'].label = 'email'
         return form
+
+
 
