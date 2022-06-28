@@ -167,7 +167,7 @@ class TestHomeView(TestCase):
             'password2' : 'goodpass',
         }
         self.client.post(reverse('accounts:signup'), post)
-        self.client.login(username='test', password='goodpass')
+
 
     def test_success_get(self):
         response = self.client.get(reverse('accounts:home'))
@@ -176,12 +176,7 @@ class TestHomeView(TestCase):
 
 
 class TestLoginView(TestCase):
-    def test_success_get(self):
-        response = self.client.get(reverse('accounts:login'))
-        self.assertEqual(response.status_code,200)
-        self.assertTemplateUsed(response, 'accounts/login.html')
-
-    def test_success_post(self):
+    def setUp(self):
         post = {
             'email' : 'test@example.com',
             'username' : 'test',
@@ -189,6 +184,14 @@ class TestLoginView(TestCase):
             'password2' : 'goodpass',
         }
         self.client.post(reverse('accounts:signup'), post)
+        self.client.logout()
+
+    def test_success_get(self):
+        response = self.client.get(reverse('accounts:login'))
+        self.assertEqual(response.status_code,200)
+        self.assertTemplateUsed(response, 'accounts/login.html')
+
+    def test_success_post(self):
         loginPost = {
             'username' : 'test',
             'password' : 'goodpass',
@@ -199,13 +202,6 @@ class TestLoginView(TestCase):
         self.assertIn(SESSION_KEY, self.client.session)
 
     def test_failure_post_with_not_exists_user(self):
-        post = {
-            'email' : 'test@example.com',
-            'username' : 'test',
-            'password1' : 'goodpass',
-            'password2' : 'goodpass',
-        }
-        self.client.post(reverse('accounts:signup'), post)
         loginPost = {
             'username' : 'te',
             'password' : 'goodpass',
@@ -217,13 +213,6 @@ class TestLoginView(TestCase):
 
 
     def test_failure_post_with_empty_password(self):
-        post = {
-            'email' : 'test@example.com',
-            'username' : 'test',
-            'password1' : 'goodpass',
-            'password2' : 'goodpass',
-        }
-        self.client.post(reverse('accounts:signup'), post)
         loginPost = {
             'username' : 'test',
             'password' : '',
@@ -250,10 +239,11 @@ class TestUserProfileView(TestCase):
             'password2' : 'goodpass',
         }
         self.client.post(reverse('accounts:signup'), post)
-        self.client.login(username='test', password='goodpass')
+
 
     def test_success_get(self):
-        response = self.client.get(reverse('accounts:user_profile'), kwargs={'pk': 1})
+        # user = User.objects.get()
+        response = self.client.get(reverse('accounts:user_profile'), kwargs={'pk': self.objects.pk})
         self.assertEqual(response.status_code,200)
         self.assertTemplateUsed(response, 'accounts/profile.html')
     

@@ -53,6 +53,7 @@ class UserProfileView(LoginRequiredMixin, TemplateView):
     login_url = '/login/'
 
 
+
 class UserProfileEditView(LoginRequiredMixin, UpdateView):
     template_name = 'accounts/profile_edit.html'
     model = User
