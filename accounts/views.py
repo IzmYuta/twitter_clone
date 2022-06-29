@@ -1,8 +1,10 @@
 from django.contrib.auth import authenticate, login, get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.contrib.auth.mixins import LoginRequiredMixin,UserPassesTestMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, TemplateView, UpdateView
+from django.views.generic import CreateView, TemplateView, UpdateView, DetailView
+from django.shortcuts import  get_object_or_404
+from django.http import Http404
 
 from .forms import LoginForm, SignUpForm, ProfileEditForm
 
@@ -45,16 +47,20 @@ class LoginView(LoginView):
             login(self.request, user)
             return response
 
-class LogoutView(LoginRequiredMixin,LogoutView):
+class LogoutView(LogoutView):
     template_name = 'accounts/login.html'
 
 class UserProfileView(LoginRequiredMixin, TemplateView):
     template_name = 'accounts/profile.html'
-    login_url = '/login/'
+    # login_url = '/login/'
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['profile'] = get_object_or_404(User, id=self.kwargs.get('pk', ''))
+        return ctx
 
 
 
-class UserProfileEditView(LoginRequiredMixin, UpdateView):
+class UserProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = 'accounts/profile_edit.html'
     model = User
     form_class = ProfileEditForm
@@ -68,6 +74,13 @@ class UserProfileEditView(LoginRequiredMixin, UpdateView):
         form.fields['username'].label = 'username'
         form.fields['email'].label = 'email'
         return form
+    
+    def test_func(self):
+        if User.objects.filter(pk=self.kwargs['pk']).exists():
+            current_user = self.request.user
+            return current_user.pk == self.kwargs['pk']
+        else:
+            raise Http404
 
 
 

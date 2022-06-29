@@ -1,8 +1,10 @@
+from urllib import response
 from django.contrib.auth import get_user_model, SESSION_KEY
 from django.test import TestCase
 from django.urls import reverse
 
 from mysite import settings
+
 
 User = get_user_model()
 
@@ -227,6 +229,7 @@ class TestLogoutView(TestCase):
     def test_success_get(self):
         response = self.client.get(reverse('accounts:logout'))
         self.assertEqual(response.status_code,302)
+        self.assertRedirects(response, reverse(settings.LOGOUT_REDIRECT_URL), status_code=302, target_status_code=200)
         self.assertNotIn(SESSION_KEY, self.client.session)
 
 
@@ -242,28 +245,71 @@ class TestUserProfileView(TestCase):
 
 
     def test_success_get(self):
-        # user = User.objects.get()
-        response = self.client.get(reverse('accounts:user_profile'), kwargs={'pk': self.objects.pk})
+        user = User.objects.get()
+        response = self.client.get(reverse('accounts:user_profile', kwargs={'pk': user.pk}))
         self.assertEqual(response.status_code,200)
         self.assertTemplateUsed(response, 'accounts/profile.html')
     
     def test_failure_get_with_not_exists_user(self):
-        pass
+        response = self.client.get(reverse('accounts:user_profile', kwargs={'pk': 100}))
+        self.assertEqual(response.status_code,404)
 
 
 
 class TestUserProfileEditView(TestCase):
+    def setUp(self):
+        post = {
+            'email' : 'test@example.com',
+            'username' : 'test',
+            'password1' : 'goodpass',
+            'password2' : 'goodpass',
+        }
+        self.client.post(reverse('accounts:signup'), post)
+
     def test_success_get(self):
-        pass
+        user = User.objects.get()
+        response = self.client.get(reverse('accounts:user_profile_edit', kwargs={'pk': user.pk}))
+        self.assertEqual(response.status_code,200)
+        self.assertTemplateUsed(response, 'accounts/profile_edit.html')
 
     def test_success_post(self):
-        pass
+        editPost = {
+            'username' : 'test2',
+            'email' : 'test2@example.com',
+        }
+        user = User.objects.get()
+        response = self.client.post(reverse('accounts:user_profile_edit', kwargs={'pk': user.pk}), editPost)
+        self.assertEqual(response.status_code,302)
+        self.assertRedirects(response, reverse('accounts:user_profile', kwargs={'pk': user.pk}), status_code=302, target_status_code=200)
+        self.assertTrue(User.objects.filter(username='test2', email='test2@example.com').exists())
 
     def test_failure_post_with_not_exists_user(self):
-        pass
+        editPost = {
+            'username' : 'test2',
+            'email' : 'test2@example.com',
+        }
+        response = self.client.post(reverse('accounts:user_profile_edit', kwargs={'pk': 100}), editPost)
+        self.assertEqual(response.status_code,404)
+        self.assertFalse(User.objects.filter(username='test2', email='test2@example.com').exists())
 
     def test_failure_post_with_incorrect_user(self):
-        pass
+        post2 = {
+            'email' : 'second@example.com',
+            'username' : 'second',
+            'password1' : 'goodpass2',
+            'password2' : 'goodpass2',
+        }
+        self.client.post(reverse('accounts:signup'), post2)
+        editPost = {
+            'username' : 'test2',
+            'email' : 'test2@example.com',
+        }
+        user1 = User.objects.get(username='test')
+        response = self.client.post(reverse('accounts:user_profile_edit', kwargs={'pk': user1.pk}), editPost)
+        self.assertEqual(response.status_code,403)
+        self.assertFalse(User.objects.filter(username='test2', email='test2@example.com').exists())
+
+
 
 
 class TestFollowView(TestCase):
