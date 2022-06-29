@@ -42,7 +42,6 @@ class TestSignUpView(TestCase):
         self.assertFormError(response, 'form', 'password1', 'このフィールドは必須です。')
         self.assertFormError(response, 'form', 'password2', 'このフィールドは必須です。')
 
-
     def test_failure_post_with_empty_username(self):
         post = {
             'email' : 'test@example.com',
@@ -147,7 +146,6 @@ class TestSignUpView(TestCase):
         self.assertFalse(User.objects.filter(username='test', email='test@example.com').exists())
         self.assertFormError(response, 'form', 'password2', 'このパスワードは一般的すぎます。',  'このパスワードは数字しか使われていません。')
 
-
     def test_failure_post_with_mismatch_password(self):
         post = {
             'email' : 'test@example.com',
@@ -160,6 +158,7 @@ class TestSignUpView(TestCase):
         self.assertFalse(User.objects.filter(username='test', email='test@example.com').exists())
         self.assertFormError(response, 'form', 'password2', '確認用パスワードが一致しません。')
 
+
 class TestHomeView(TestCase):
     def setUp(self):
         post = {
@@ -169,7 +168,6 @@ class TestHomeView(TestCase):
             'password2' : 'goodpass',
         }
         self.client.post(reverse('accounts:signup'), post)
-
 
     def test_success_get(self):
         response = self.client.get(reverse('accounts:home'))
@@ -213,7 +211,6 @@ class TestLoginView(TestCase):
         self.assertFormError(response, 'form', '', '正しいユーザー名とパスワードを入力してください。どちらのフィールドも大文字と小文字は区別されます。')
         self.assertNotIn(SESSION_KEY, self.client.session)
 
-
     def test_failure_post_with_empty_password(self):
         loginPost = {
             'username' : 'test',
@@ -243,7 +240,6 @@ class TestUserProfileView(TestCase):
         }
         self.client.post(reverse('accounts:signup'), post)
 
-
     def test_success_get(self):
         user = User.objects.get()
         response = self.client.get(reverse('accounts:user_profile', kwargs={'pk': user.pk}))
@@ -255,7 +251,6 @@ class TestUserProfileView(TestCase):
         self.assertEqual(response.status_code,404)
 
 
-
 class TestUserProfileEditView(TestCase):
     def setUp(self):
         post = {
@@ -263,6 +258,10 @@ class TestUserProfileEditView(TestCase):
             'username' : 'test',
             'password1' : 'goodpass',
             'password2' : 'goodpass',
+        }
+        self.editPost = {
+            'username' : 'test2',
+            'email' : 'test2@example.com',
         }
         self.client.post(reverse('accounts:signup'), post)
 
@@ -273,22 +272,14 @@ class TestUserProfileEditView(TestCase):
         self.assertTemplateUsed(response, 'accounts/profile_edit.html')
 
     def test_success_post(self):
-        editPost = {
-            'username' : 'test2',
-            'email' : 'test2@example.com',
-        }
         user = User.objects.get()
-        response = self.client.post(reverse('accounts:user_profile_edit', kwargs={'pk': user.pk}), editPost)
+        response = self.client.post(reverse('accounts:user_profile_edit', kwargs={'pk': user.pk}), self.editPost)
         self.assertEqual(response.status_code,302)
         self.assertRedirects(response, reverse('accounts:user_profile', kwargs={'pk': user.pk}), status_code=302, target_status_code=200)
         self.assertTrue(User.objects.filter(username='test2', email='test2@example.com').exists())
 
     def test_failure_post_with_not_exists_user(self):
-        editPost = {
-            'username' : 'test2',
-            'email' : 'test2@example.com',
-        }
-        response = self.client.post(reverse('accounts:user_profile_edit', kwargs={'pk': 100}), editPost)
+        response = self.client.post(reverse('accounts:user_profile_edit', kwargs={'pk': 100}), self.editPost)
         self.assertEqual(response.status_code,404)
         self.assertFalse(User.objects.filter(username='test2', email='test2@example.com').exists())
 
@@ -300,16 +291,10 @@ class TestUserProfileEditView(TestCase):
             'password2' : 'goodpass2',
         }
         self.client.post(reverse('accounts:signup'), post2)
-        editPost = {
-            'username' : 'test2',
-            'email' : 'test2@example.com',
-        }
         user1 = User.objects.get(username='test')
-        response = self.client.post(reverse('accounts:user_profile_edit', kwargs={'pk': user1.pk}), editPost)
+        response = self.client.post(reverse('accounts:user_profile_edit', kwargs={'pk': user1.pk}), self.editPost)
         self.assertEqual(response.status_code,403)
         self.assertFalse(User.objects.filter(username='test2', email='test2@example.com').exists())
-
-
 
 
 class TestFollowView(TestCase):
