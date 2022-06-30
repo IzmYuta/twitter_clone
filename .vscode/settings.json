@@ -1,5 +1,30 @@
 {
-	"[python]": {
-		"editor.tabSize": 4
+	"terminal.integrated.profiles.windows": {
+		"finalexam": {
+			"path": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",//Powershellのパス
+			"args": [ //起動時に自動で行うコマンド
+				"-NoExit",
+				"-Command",
+				"venv/Scripts/activate",
+			],
+		}
 	},
+	"terminal.integrated.defaultProfile.windows": "finalexam", 
+	"[python]": {
+		"editor.tabSize": 4,
+		"editor.formatOnSave": true, // 保存時のフォーマット設定
+		"editor.formatOnType": false, // 入力中（改行時）のフォーマット設定
+		"editor.formatOnPaste": false, // ペースト時のフォーマット設定
+	},
+	"python.linting.flake8Args": [ // flake8 の設定
+		"--ignore=E111, E114, E402, E501"
+	],
+	"python.formatting.autopep8Args": [ //autopep8の設定
+		"--ignore",
+		"E50",
+		"--max-line-length",
+		"150",
+		"--aggressive",
+		"--aggressive",
+	],
 }
