@@ -2,8 +2,7 @@ from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, TemplateView, UpdateView
-from django.shortcuts import get_object_or_404
+from django.views.generic import CreateView, TemplateView, UpdateView, DetailView
 from django.http import Http404
 
 from .forms import LoginForm, SignUpForm, ProfileEditForm
@@ -53,13 +52,10 @@ class LogoutView(LogoutView):
     template_name = 'accounts/login.html'
 
 
-class UserProfileView(LoginRequiredMixin, TemplateView):
+class UserProfileView(LoginRequiredMixin, DetailView):
     template_name = 'accounts/profile.html'
-
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx['profile'] = get_object_or_404(User, id=self.kwargs.get('pk', ''))
-        return ctx
+    model = User
+    context_object_name = 'user'
 
 
 class UserProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
