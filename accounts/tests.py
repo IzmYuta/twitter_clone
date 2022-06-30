@@ -222,6 +222,15 @@ class TestLoginView(TestCase):
 
 
 class TestLogoutView(TestCase):
+    def setUp(self):
+        post = {
+            'email': 'test@example.com',
+            'username': 'test',
+            'password1': 'goodpass',
+            'password2': 'goodpass',
+        }
+        self.client.post(reverse('accounts:signup'), post)
+
     def test_success_get(self):
         response = self.client.get(reverse('accounts:logout'))
         self.assertRedirects(response, reverse(settings.LOGOUT_REDIRECT_URL), status_code=302, target_status_code=200)

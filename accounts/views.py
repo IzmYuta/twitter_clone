@@ -66,7 +66,6 @@ class UserProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = 'accounts/profile_edit.html'
     model = User
     form_class = ProfileEditForm
-    success_url = reverse_lazy('accounts:user_profile')
 
     def get_success_url(self):
         return reverse('accounts:user_profile', kwargs={'pk': self.object.pk})
