@@ -31,7 +31,6 @@ class WelcomeView(TemplateView):
 
 class HomeView(TemplateView):
     template_name = 'accounts/home.html'
-    login_url = '/login/'
 
 
 class LoginView(LoginView):
@@ -65,12 +64,6 @@ class UserProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('accounts:user_profile', kwargs={'pk': self.object.pk})
-
-    def get_form(self):
-        form = super(UserProfileEditView, self).get_form()
-        form.fields['username'].label = 'username'
-        form.fields['email'].label = 'email'
-        return form
 
     def test_func(self):
         if User.objects.filter(pk=self.kwargs['pk']).exists():
