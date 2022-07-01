@@ -12,14 +12,14 @@ User = get_user_model()
 
 
 class SignUpView(CreateView):
-    template_name = 'accounts/signup.html'
+    template_name = "accounts/signup.html"
     form_class = SignUpForm
-    success_url = reverse_lazy('accounts:home')
+    success_url = reverse_lazy("accounts:home")
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        username = form.cleaned_data['username']
-        password = form.cleaned_data['password1']
+        username = form.cleaned_data["username"]
+        password = form.cleaned_data["password1"]
         user = authenticate(self.request, username=username, password=password)
         if user is not None:
             login(self.request, user)
@@ -27,22 +27,22 @@ class SignUpView(CreateView):
 
 
 class WelcomeView(TemplateView):
-    template_name = 'welcome/index.html'
+    template_name = "welcome/index.html"
 
 
 class HomeView(TemplateView):
-    template_name = 'accounts/home.html'
+    template_name = "accounts/home.html"
     model = User
 
 
 class LoginView(LoginView):
     form_class = LoginForm
-    template_name = 'accounts/login.html'
+    template_name = "accounts/login.html"
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        username = form.cleaned_data['username']
-        password = form.cleaned_data['password']
+        username = form.cleaned_data["username"]
+        password = form.cleaned_data["password"]
         user = authenticate(self.request, username=username, password=password)
         if user is not None:
             login(self.request, user)
@@ -50,26 +50,26 @@ class LoginView(LoginView):
 
 
 class LogoutView(LogoutView):
-    template_name = 'accounts/login.html'
+    template_name = "accounts/login.html"
 
 
 class UserProfileView(LoginRequiredMixin, DetailView):
-    template_name = 'accounts/profile.html'
+    template_name = "accounts/profile.html"
     model = Profile
-    context_object_name = 'profile'
+    context_object_name = "profile"
 
 
 class UserProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
-    template_name = 'accounts/profile_edit.html'
+    template_name = "accounts/profile_edit.html"
     model = Profile
     form_class = ProfileEditForm
 
     def get_success_url(self):
-        return reverse('accounts:user_profile', kwargs={'pk': self.object.pk})
+        return reverse("accounts:user_profile", kwargs={"pk": self.object.pk})
 
     def test_func(self):
-        if Profile.objects.filter(pk=self.kwargs['pk']).exists():
+        if Profile.objects.filter(pk=self.kwargs["pk"]).exists():
             current_user = self.request.user
-            return current_user.pk == self.kwargs['pk']
+            return current_user.pk == self.kwargs["pk"]
         else:
             raise Http404
