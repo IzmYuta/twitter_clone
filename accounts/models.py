@@ -9,10 +9,14 @@ class User(AbstractUser):
 
 
 class Profile(models.Model):
+    GENDER_CHOICES = (
+        (1, 'Man'),
+        (2, 'Woman'),
+        (3, 'other'),
+    )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    username = models.CharField(max_length=150, verbose_name="username")
-    email = models.EmailField(max_length=254)
-
+    gender = models.IntegerField(blank=True, null=True, choices=GENDER_CHOICES, verbose_name='gender')
+    selfIntro = models.CharField(blank=True, null=True, max_length=252, verbose_name='selfIntro')
 
 # class FriendShip(models.Model):
 #    pass
