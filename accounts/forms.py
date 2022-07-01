@@ -25,4 +25,4 @@ class ProfileEditForm(ModelForm):
 
     class Meta:
         model = Profile
-        fields = ('username', 'email', 'gender', 'selfIntro',)
+        fields = ('gender', 'selfIntro',)

@@ -267,9 +267,7 @@ class TestUserProfileEditView(TestCase):
             'password2': 'goodpass',
         }
         self.editPost = {
-            'username': 'test2',
-            'email': 'test2@example.com',
-            'gender': '3',
+            'gender': 3,
             'selfIntro': 'よろしく',
         }
         self.client.post(reverse('accounts:signup'), post)
@@ -284,12 +282,12 @@ class TestUserProfileEditView(TestCase):
         user = User.objects.get(username='test')
         response = self.client.post(reverse('accounts:user_profile_edit', kwargs={'pk': user.pk}), self.editPost)
         self.assertRedirects(response, reverse('accounts:user_profile', kwargs={'pk': user.pk}), status_code=302, target_status_code=200)
-        self.assertTrue(User.objects.filter(username='test2', email='test2@example.com').exists())
+        self.assertTrue(User.objects.filter(username='test', email='test@example.com', gender=3).exists())
 
     def test_failure_post_with_not_exists_user(self):
         response = self.client.post(reverse('accounts:user_profile_edit', kwargs={'pk': 100}), self.editPost)
         self.assertEqual(response.status_code, 404)
-        self.assertFalse(User.objects.filter(username='test2', email='test2@example.com').exists())
+        self.assertFalse(User.objects.filter(username='test', email='test@example.com', gender=3).exists())
 
     def test_failure_post_with_incorrect_user(self):
         post2 = {
@@ -302,7 +300,7 @@ class TestUserProfileEditView(TestCase):
         user2 = User.objects.get(username='second')
         response = self.client.post(reverse('accounts:user_profile_edit', kwargs={'pk': user2.pk}), self.editPost)
         self.assertEqual(response.status_code, 403)
-        self.assertFalse(User.objects.filter(username='test2', email='test2@example.com').exists())
+        self.assertFalse(User.objects.filter(username='test', email='test@example.com', gender=3).exists())
 
 
 class TestFollowView(TestCase):
