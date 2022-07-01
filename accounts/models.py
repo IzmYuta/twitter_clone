@@ -16,7 +16,7 @@ class Profile(models.Model):
     )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     gender = models.IntegerField(blank=True, null=True, choices=GENDER, verbose_name='gender')
-    selfIntro = models.CharField(blank=True, null=True, max_length=252, verbose_name='selfIntro')
+    self_intro = models.CharField(blank=True, null=True, max_length=252, verbose_name='self_intro')
 
 # class FriendShip(models.Model):
 #    pass
@@ -27,6 +27,3 @@ def post_user_created(sender, instance, created, **kwargs):
     if created:
         profile_obj = Profile(user=instance)
         profile_obj.save()
-
-
-post_save.connect(post_user_created, sender=User)
