@@ -32,6 +32,7 @@ class WelcomeView(TemplateView):
 
 class HomeView(TemplateView):
     template_name = 'accounts/home.html'
+    model = User
 
 
 class LoginView(LoginView):
