@@ -1,5 +1,5 @@
-<p>Gender：{{ user.gender }}</p>
-<p>Self Introduction：{{ user.selfIntro }}</p>
+<p>Gender：{{ profile.get_gender_display }}</p>
+<p>Self Introduction：{{ profile.selfIntro }}</p>
 
 
 <a href="{% url 'accounts:home' %}">ホーム</a>

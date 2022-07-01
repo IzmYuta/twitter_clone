@@ -56,7 +56,7 @@ class LogoutView(LogoutView):
 class UserProfileView(LoginRequiredMixin, DetailView):
     template_name = 'accounts/profile.html'
     model = Profile
-    context_object_name = 'user'
+    context_object_name = 'profile'
 
 
 class UserProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):

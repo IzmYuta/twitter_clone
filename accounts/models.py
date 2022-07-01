@@ -9,13 +9,13 @@ class User(AbstractUser):
 
 
 class Profile(models.Model):
-    GENDER_CHOICES = (
+    GENDER = (
         (1, 'Man'),
         (2, 'Woman'),
         (3, 'other'),
     )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    gender = models.IntegerField(blank=True, null=True, choices=GENDER_CHOICES, verbose_name='gender')
+    gender = models.IntegerField(blank=True, null=True, choices=GENDER, verbose_name='gender')
     selfIntro = models.CharField(blank=True, null=True, max_length=252, verbose_name='selfIntro')
 
 # class FriendShip(models.Model):
