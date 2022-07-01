@@ -269,6 +269,8 @@ class TestUserProfileEditView(TestCase):
         self.editPost = {
             'username': 'test2',
             'email': 'test2@example.com',
+            'gender': '3',
+            'selfIntro': 'よろしく',
         }
         self.client.post(reverse('accounts:signup'), post)
 

@@ -6,6 +6,7 @@ from django.views.generic import CreateView, TemplateView, UpdateView, DetailVie
 from django.http import Http404
 
 from .forms import LoginForm, SignUpForm, ProfileEditForm
+from .models import Profile
 
 User = get_user_model()
 
@@ -53,20 +54,20 @@ class LogoutView(LogoutView):
 
 class UserProfileView(LoginRequiredMixin, DetailView):
     template_name = 'accounts/profile.html'
-    model = User
+    model = Profile
     context_object_name = 'user'
 
 
 class UserProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     template_name = 'accounts/profile_edit.html'
-    model = User
+    model = Profile
     form_class = ProfileEditForm
 
     def get_success_url(self):
         return reverse('accounts:user_profile', kwargs={'pk': self.object.pk})
 
     def test_func(self):
-        if User.objects.filter(pk=self.kwargs['pk']).exists():
+        if Profile.objects.filter(pk=self.kwargs['pk']).exists():
             current_user = self.request.user
             return current_user.pk == self.kwargs['pk']
         else:

@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 from django.forms import ModelForm
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
+from .models import Profile
+
 User = get_user_model()
 
 
@@ -22,5 +24,5 @@ class LoginForm(AuthenticationForm):
 class ProfileEditForm(ModelForm):
 
     class Meta:
-        model = User
-        fields = ('username', 'email',)
+        model = Profile
+        fields = ('username', 'email', 'gender', 'selfIntro',)
