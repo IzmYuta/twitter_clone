@@ -1,5 +1,33 @@
 {
-	"[python]": {
-		"editor.tabSize": 4
+	"terminal.integrated.profiles.windows": {
+		"finalexam": {
+			"path": "C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",//Powershellのパス
+			"args": [ //PowerShell起動時に自動で行うコマンド
+				"-NoExit",
+				"-Command",
+				"venv/Scripts/activate",
+			],
+		}
 	},
-}
+		// vscode
+		"editor.formatOnSave": true,
+		"files.eol": "\n",
+		"files.insertFinalNewline": true,
+		"files.trimFinalNewlines": true,
+		// python
+		"python.formatting.provider": "black",
+		"python.languageServer": "Pylance",
+		"python.linting.enabled": true,
+		"python.linting.lintOnSave": true,
+		"python.linting.pylintEnabled": false,
+		"python.linting.flake8Enabled": true,
+		"python.linting.flake8Args": [
+			"--max-line-length",
+			"119",
+			"--ignore=E203,W503,W504"
+		],
+		"[python]": {
+			"editor.tabSize": 4,
+			"editor.defaultFormatter": "ms-python.python"
+		}
+	}
