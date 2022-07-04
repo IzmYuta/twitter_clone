@@ -1,5 +1,3 @@
-from distutils.log import Log
-from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, DetailView, DeleteView
 from django.contrib.auth import get_user_model

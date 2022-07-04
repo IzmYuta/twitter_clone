@@ -1,3 +1,7 @@
 <h1>Home</h1>
-<p>hello！{{ user.username }}！</p>
+{% for tweet in tweets %}
+  <p>{{ tweet.user }} / {{ tweet.created_at }}</p>
+  <p>{{ tweet.content }}</p>
+{% endfor %}
 <a href="{% url 'accounts:user_profile' user.pk %}">プロフィールを確認</a>
+<a href="{% url 'tweets:create'%}">ツイート</a>
