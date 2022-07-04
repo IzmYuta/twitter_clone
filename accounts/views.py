@@ -42,7 +42,7 @@ class HomeView(ListView):
     template_name = "accounts/home.html"
     context_object_name = "tweets"
     model = Tweet
-    queryset = Tweet.objects.select_related("user")
+    queryset = Tweet.objects.select_related("user").order_by("-created_at")
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
@@ -72,6 +72,13 @@ class UserProfileView(LoginRequiredMixin, DetailView):
     template_name = "accounts/profile.html"
     model = Profile
     context_object_name = "profile"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["tweets"] = (
+            Tweet.objects.select_related("user").filter(user=self.request.user).order_by("-created_at").all()
+        )
+        return ctx
 
 
 class UserProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
