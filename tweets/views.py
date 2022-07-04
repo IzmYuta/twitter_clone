@@ -20,7 +20,7 @@ class TweetCreateView(LoginRequiredMixin, CreateView):
         return super(BaseCreateView, self).post(request, *args, **kwargs)
 
     def get_success_url(self):
-        return reverse("tweets:detail", kwargs={"pk": self.object.pk})
+        return reverse("accounts:home")
 
 
 class TweetDetailView(DetailView):
@@ -37,7 +37,7 @@ class TweetDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         if Tweet.objects.filter(pk=self.kwargs["pk"]).exists():
             current_user = self.request.user
-            tweet_user = Tweet.objects.get(pk=self.kwargs["pk"]).user
+            tweet_user = Tweet.objects.filter(pk=self.kwargs["pk"]).user
             return current_user.pk == tweet_user.pk
         else:
             raise Http404
