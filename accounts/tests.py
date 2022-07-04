@@ -198,13 +198,17 @@ class TestHomeView(TestCase):
         }
         self.client.post(reverse("accounts:signup"), post)
         post = {"content": "hello"}
+        post2 = {"content": "sorry"}
         self.client.post(reverse("tweets:create"), post)
+        self.client.post(reverse("tweets:create"), post2)
 
     def test_success_get(self):
         response = self.client.get(reverse("accounts:home"))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "accounts/home.html")
-        self.assertQuerysetEqual(response.context["tweets"], Tweet.objects.all())
+        self.assertQuerysetEqual(
+            response.context["tweets"], Tweet.objects.all().order_by("-created_at")
+        )
 
 
 class TestLoginView(TestCase):
@@ -293,7 +297,9 @@ class TestUserProfileView(TestCase):
         }
         self.client.post(reverse("accounts:signup"), post)
         post = {"content": "hello"}
+        post2 = {"content": "sorry"}
         self.client.post(reverse("tweets:create"), post)
+        self.client.post(reverse("tweets:create"), post2)
 
     def test_success_get(self):
         user = User.objects.get(username="test")
@@ -303,7 +309,8 @@ class TestUserProfileView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "accounts/profile.html")
         self.assertQuerysetEqual(
-            response.context["tweets"], Tweet.objects.filter(user=user).all()
+            response.context["tweets"],
+            Tweet.objects.filter(user=user).all().order_by("-created_at"),
         )
 
     def test_failure_get_with_not_exists_user(self):
