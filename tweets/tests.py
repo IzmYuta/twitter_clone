@@ -74,14 +74,40 @@ class TestTweetDetailView(TestCase):
 
 
 class TestTweetDeleteView(TestCase):
+    def setUp(self):
+        post = {
+            "email": "test@example.com",
+            "username": "test",
+            "password1": "goodpass",
+            "password2": "goodpass",
+        }
+        self.client.post(reverse("accounts:signup"), post)
+        post = {"content": "hello"}
+        self.client.post(reverse("tweets:create"), post)
+
     def test_success_post(self):
-        pass
+        tweet = Tweet.objects.get(content="hello")
+        response = self.client.post(reverse("tweets:delete", kwargs={"pk": tweet.pk}))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Tweet.objects.filter(content="hello").exists())
 
     def test_failure_post_with_not_exist_tweet(self):
-        pass
+        response = self.client.post(reverse("tweets:delete", kwargs={"pk": 100}))
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(Tweet.objects.filter(content="hello").exists())
 
     def test_failure_post_with_incorrect_user(self):
-        pass
+        post2 = {
+            "email": "test@example.com",
+            "username": "second",
+            "password1": "goodpass",
+            "password2": "goodpass",
+        }
+        self.client.post(reverse("accounts:signup"), post2)
+        tweet = Tweet.objects.get(content="hello")
+        response = self.client.post(reverse("tweets:delete", kwargs={"pk": tweet.pk}))
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(Tweet.objects.filter(content="hello").exists())
 
 
 class TestFavoriteView(TestCase):
