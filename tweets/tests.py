@@ -1,6 +1,7 @@
 from importlib.resources import contents
 from django.test import TestCase
 from django.urls import reverse
+import tweets
 
 from tweets.models import Tweet
 
@@ -56,8 +57,21 @@ class TestTweetCreateView(TestCase):
 
 
 class TestTweetDetailView(TestCase):
+    def setUp(self):
+        post = {
+            "email": "test@example.com",
+            "username": "test",
+            "password1": "goodpass",
+            "password2": "goodpass",
+        }
+        self.client.post(reverse("accounts:signup"), post)
+        post = {"content": "hello"}
+        self.client.post(reverse("tweets:create"), post)
+
     def test_success_get(self):
-        pass
+        tweet = Tweet.objects.get(content="hello")
+        response = self.client.get(reverse("tweets:detail", kwargs={"pk": tweet.pk}))
+        self.assertEqual(response.status_code, 200)
 
 
 class TestTweetDeleteView(TestCase):
