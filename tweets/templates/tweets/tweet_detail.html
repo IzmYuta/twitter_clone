@@ -1,4 +1,5 @@
-<p>{{ tweet.user.username }}</p>
+<p>{{ tweet.user.username }} / {{ tweet.created_at }}</p>
 <p>{{ tweet.content }}</p>
 
 <a href="{% url 'tweets:delete' tweet.pk %}">削除する</a>
+<a href="{% url 'accounts:user_profile' user.pk %}">戻る</a>

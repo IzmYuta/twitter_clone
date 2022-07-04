@@ -28,6 +28,11 @@ class TweetDetailView(DetailView):
     model = Tweet
     context_object_name = "tweet"
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["user"] = User.objects.get(pk=self.request.user.pk)
+        return ctx
+
 
 class TweetDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     template_name = "tweets/tweet_delete.html"
@@ -37,7 +42,7 @@ class TweetDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     def test_func(self):
         if Tweet.objects.filter(pk=self.kwargs["pk"]).exists():
             current_user = self.request.user
-            tweet_user = Tweet.objects.filter(pk=self.kwargs["pk"]).user
+            tweet_user = Tweet.objects.get(pk=self.kwargs["pk"]).user
             return current_user.pk == tweet_user.pk
         else:
             raise Http404

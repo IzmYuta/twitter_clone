@@ -22,7 +22,6 @@ class TestSignUpView(TestCase):
             "password2": "goodpass",
         }
         response = self.client.post(reverse("accounts:signup"), post)
-        self.assertEqual(response.status_code, 302)
         self.assertTrue(
             User.objects.filter(username="test", email="test@example.com").exists()
         )
