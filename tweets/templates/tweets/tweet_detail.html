@@ -1,2 +1,4 @@
 <p>{{ tweet.user.username }}</p>
 <p>{{ tweet.content }}</p>
+
+<a href="{% url 'tweets:delete' tweet.pk %}">削除する</a>
