@@ -1,7 +1,5 @@
-from importlib.resources import contents
 from django.test import TestCase
 from django.urls import reverse
-import tweets
 
 from tweets.models import Tweet
 
@@ -72,6 +70,7 @@ class TestTweetDetailView(TestCase):
         tweet = Tweet.objects.get(content="hello")
         response = self.client.get(reverse("tweets:detail", kwargs={"pk": tweet.pk}))
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(tweet, response.context["tweet"])
 
 
 class TestTweetDeleteView(TestCase):
