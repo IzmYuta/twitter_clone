@@ -26,11 +26,6 @@ class TweetDetailView(DetailView):
     model = Tweet
     context_object_name = "tweet"
 
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx["user"] = User.objects.get(pk=self.request.user.pk)
-        return ctx
-
 
 class TweetDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     template_name = "tweets/tweet_delete.html"

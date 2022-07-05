@@ -207,7 +207,7 @@ class TestHomeView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "accounts/home.html")
         self.assertQuerysetEqual(
-            response.context["tweets"], Tweet.objects.all().order_by("-created_at")
+            response.context["tweets"], Tweet.objects.order_by("-created_at")
         )
 
 
@@ -310,7 +310,7 @@ class TestUserProfileView(TestCase):
         self.assertTemplateUsed(response, "accounts/profile.html")
         self.assertQuerysetEqual(
             response.context["tweets"],
-            Tweet.objects.filter(user=user).all().order_by("-created_at"),
+            Tweet.objects.filter(user=user).order_by("-created_at"),
         )
 
     def test_failure_get_with_not_exists_user(self):

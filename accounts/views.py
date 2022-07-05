@@ -44,11 +44,6 @@ class HomeView(ListView):
     model = Tweet
     queryset = Tweet.objects.select_related("user").order_by("-created_at")
 
-    def get_context_data(self, **kwargs):
-        ctx = super().get_context_data(**kwargs)
-        ctx["user"] = User.objects.get(pk=self.request.user.pk)
-        return ctx
-
 
 class LoginView(LoginView):
     form_class = LoginForm
@@ -79,7 +74,6 @@ class UserProfileView(LoginRequiredMixin, DetailView):
             Tweet.objects.select_related("user")
             .filter(user=self.request.user)
             .order_by("-created_at")
-            .all()
         )
         return ctx
 
