@@ -16,13 +16,13 @@ class TestSignUpView(TestCase):
         self.assertTemplateUsed(response, "accounts/signup.html")
 
     def test_success_post(self):
-        post = {
+        user = {
             "email": "test@example.com",
             "username": "test",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        response = self.client.post(reverse("accounts:signup"), post)
+        response = self.client.post(reverse("accounts:signup"), user)
         self.assertTrue(
             User.objects.filter(username="test", email="test@example.com").exists()
         )
@@ -37,13 +37,13 @@ class TestSignUpView(TestCase):
         self.assertIn(SESSION_KEY, self.client.session)
 
     def test_failure_post_with_empty_form(self):
-        post = {
+        user = {
             "email": "",
             "username": "",
             "password1": "",
             "password2": "",
         }
-        response = self.client.post(reverse("accounts:signup"), post)
+        response = self.client.post(reverse("accounts:signup"), user)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(User.objects.filter(username=" ", email=" ").exists())
         self.assertFormError(response, "form", "email", "このフィールドは必須です。")
@@ -52,13 +52,13 @@ class TestSignUpView(TestCase):
         self.assertFormError(response, "form", "password2", "このフィールドは必須です。")
 
     def test_failure_post_with_empty_username(self):
-        post = {
+        user = {
             "email": "test@example.com",
             "username": "",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        response = self.client.post(reverse("accounts:signup"), post)
+        response = self.client.post(reverse("accounts:signup"), user)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(
             User.objects.filter(username=" ", email="test@example.com").exists()
@@ -66,25 +66,25 @@ class TestSignUpView(TestCase):
         self.assertFormError(response, "form", "username", "このフィールドは必須です。")
 
     def test_failure_post_with_empty_email(self):
-        post = {
+        user = {
             "email": "",
             "username": "test",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        response = self.client.post(reverse("accounts:signup"), post)
+        response = self.client.post(reverse("accounts:signup"), user)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(User.objects.filter(username="test", email=" ").exists())
         self.assertFormError(response, "form", "email", "このフィールドは必須です。")
 
     def test_failure_post_with_empty_password(self):
-        post = {
+        user = {
             "email": "test@example.com",
             "username": "test",
             "password1": "",
             "password2": "",
         }
-        response = self.client.post(reverse("accounts:signup"), post)
+        response = self.client.post(reverse("accounts:signup"), user)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(
             User.objects.filter(username="test", email="test@example.com").exists()
@@ -93,20 +93,20 @@ class TestSignUpView(TestCase):
         self.assertFormError(response, "form", "password2", "このフィールドは必須です。")
 
     def test_failure_post_with_duplicated_user(self):
-        post1 = {
+        user1 = {
             "email": "test1@example.com",
             "username": "test",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        post2 = {
+        user2 = {
             "email": "test2@example.com",
             "username": "test",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        self.client.post(reverse("accounts:signup"), post1)
-        response = self.client.post(reverse("accounts:signup"), post2)
+        self.client.post(reverse("accounts:signup"), user1)
+        response = self.client.post(reverse("accounts:signup"), user2)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(
             User.objects.filter(username="test", email="test2@example.com").exists()
@@ -114,13 +114,13 @@ class TestSignUpView(TestCase):
         self.assertFormError(response, "form", "username", "同じユーザー名が既に登録済みです。")
 
     def test_failure_post_with_invalid_email(self):
-        post = {
+        user = {
             "email": "test.boo",
             "username": "test",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        response = self.client.post(reverse("accounts:signup"), post)
+        response = self.client.post(reverse("accounts:signup"), user)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(
             User.objects.filter(username="test", email="test.boo").exists()
@@ -128,13 +128,13 @@ class TestSignUpView(TestCase):
         self.assertFormError(response, "form", "email", "有効なメールアドレスを入力してください。")
 
     def test_failure_post_with_too_short_password(self):
-        post = {
+        user = {
             "email": "test@example.com",
             "username": "test",
             "password1": "pass",
             "password2": "pass",
         }
-        response = self.client.post(reverse("accounts:signup"), post)
+        response = self.client.post(reverse("accounts:signup"), user)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(
             User.objects.filter(username="test", email="test@example.com").exists()
@@ -144,13 +144,13 @@ class TestSignUpView(TestCase):
         )
 
     def test_failure_post_with_password_similar_to_username(self):
-        post = {
+        user = {
             "email": "test@example.com",
             "username": "goodpass",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        response = self.client.post(reverse("accounts:signup"), post)
+        response = self.client.post(reverse("accounts:signup"), user)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(
             User.objects.filter(username="test", email="test@example.com").exists()
@@ -158,13 +158,13 @@ class TestSignUpView(TestCase):
         self.assertFormError(response, "form", "password2", "このパスワードは ユーザー名 と似すぎています。")
 
     def test_failure_post_with_only_numbers_password(self):
-        post = {
+        user = {
             "email": "test@example.com",
             "username": "test",
             "password1": "12345678",
             "password2": "12345678",
         }
-        response = self.client.post(reverse("accounts:signup"), post)
+        response = self.client.post(reverse("accounts:signup"), user)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(
             User.objects.filter(username="test", email="test@example.com").exists()
@@ -174,13 +174,13 @@ class TestSignUpView(TestCase):
         )
 
     def test_failure_post_with_mismatch_password(self):
-        post = {
+        user = {
             "email": "test@example.com",
             "username": "test",
             "password1": "goodpass",
             "password2": "goodpath",
         }
-        response = self.client.post(reverse("accounts:signup"), post)
+        response = self.client.post(reverse("accounts:signup"), user)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(
             User.objects.filter(username="test", email="test@example.com").exists()
@@ -190,13 +190,13 @@ class TestSignUpView(TestCase):
 
 class TestHomeView(TestCase):
     def setUp(self):
-        post = {
+        user = {
             "email": "test@example.com",
             "username": "test",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        self.client.post(reverse("accounts:signup"), post)
+        self.client.post(reverse("accounts:signup"), user)
         post = {"content": "hello"}
         post2 = {"content": "sorry"}
         self.client.post(reverse("tweets:create"), post)
@@ -213,13 +213,13 @@ class TestHomeView(TestCase):
 
 class TestLoginView(TestCase):
     def setUp(self):
-        post = {
+        user = {
             "email": "test@example.com",
             "username": "test",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        User.objects.create_user(post["username"], post["email"], post["password1"])
+        User.objects.create_user(user["username"], user["email"], user["password1"])
 
     def test_success_get(self):
         response = self.client.get(reverse("accounts:login"))
@@ -268,13 +268,13 @@ class TestLoginView(TestCase):
 
 class TestLogoutView(TestCase):
     def setUp(self):
-        post = {
+        user = {
             "email": "test@example.com",
             "username": "test",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        self.client.post(reverse("accounts:signup"), post)
+        self.client.post(reverse("accounts:signup"), user)
 
     def test_success_get(self):
         response = self.client.get(reverse("accounts:logout"))
@@ -289,13 +289,13 @@ class TestLogoutView(TestCase):
 
 class TestUserProfileView(TestCase):
     def setUp(self):
-        post = {
+        user = {
             "email": "test@example.com",
             "username": "test",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        self.client.post(reverse("accounts:signup"), post)
+        self.client.post(reverse("accounts:signup"), user)
         post = {"content": "hello"}
         post2 = {"content": "sorry"}
         self.client.post(reverse("tweets:create"), post)
@@ -320,7 +320,7 @@ class TestUserProfileView(TestCase):
 
 class TestUserProfileEditView(TestCase):
     def setUp(self):
-        post = {
+        user = {
             "email": "test@example.com",
             "username": "test",
             "password1": "goodpass",
@@ -330,7 +330,7 @@ class TestUserProfileEditView(TestCase):
             "gender": 3,
             "self_intro": "よろしく",
         }
-        self.client.post(reverse("accounts:signup"), post)
+        self.client.post(reverse("accounts:signup"), user)
 
     def test_success_get(self):
         user = User.objects.get(username="test")
@@ -361,13 +361,13 @@ class TestUserProfileEditView(TestCase):
         self.assertFalse(Profile.objects.filter(gender=3).exists())
 
     def test_failure_post_with_incorrect_user(self):
-        post2 = {
+        user2 = {
             "email": "second@example.com",
             "username": "second",
             "password1": "goodpass2",
             "password2": "goodpass2",
         }
-        User.objects.create_user(post2["username"], post2["email"], post2["password1"])
+        User.objects.create_user(user2["username"], user2["email"], user2["password1"])
         user2 = User.objects.get(username="second")
         response = self.client.post(
             reverse("accounts:user_profile_edit", kwargs={"pk": user2.pk}),

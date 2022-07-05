@@ -6,22 +6,23 @@ from tweets.models import Tweet
 
 class TestTweetCreateView(TestCase):
     def setUp(self):
-        post = {
+        user = {
             "email": "test@example.com",
             "username": "test",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        self.client.post(reverse("accounts:signup"), post)
+        self.client.post(reverse("accounts:signup"), user)
+        self.url = reverse("tweets:create")
 
     def test_success_get(self):
-        response = self.client.get(reverse("tweets:create"))
+        response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "tweets/tweet_create.html")
 
     def test_success_post(self):
         post = {"content": "hello"}
-        response = self.client.post(reverse("tweets:create"), post)
+        response = self.client.post(self.url, post)
         self.assertTrue(Tweet.objects.filter(content=post["content"]).exists())
         self.assertRedirects(
             response,
@@ -34,16 +35,14 @@ class TestTweetCreateView(TestCase):
 
     def test_failure_post_with_empty_content(self):
         post = {"content": ""}
-        response = self.client.post(reverse("tweets:create"), post)
+        response = self.client.post(self.url, post)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Tweet.objects.filter(content=post["content"]).exists())
         self.assertFormError(response, "form", "content", "このフィールドは必須です。")
 
     def test_failure_post_with_too_long_content(self):
-        post = {
-            "content": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-        }
-        response = self.client.post(reverse("tweets:create"), post)
+        post = {"content": "a" * 141}
+        response = self.client.post(self.url, post)
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Tweet.objects.filter(content=post["content"]).exists())
         self.assertFormError(
@@ -56,13 +55,13 @@ class TestTweetCreateView(TestCase):
 
 class TestTweetDetailView(TestCase):
     def setUp(self):
-        post = {
+        user = {
             "email": "test@example.com",
             "username": "test",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        self.client.post(reverse("accounts:signup"), post)
+        self.client.post(reverse("accounts:signup"), user)
         post = {"content": "hello"}
         self.client.post(reverse("tweets:create"), post)
 
@@ -75,13 +74,13 @@ class TestTweetDetailView(TestCase):
 
 class TestTweetDeleteView(TestCase):
     def setUp(self):
-        post = {
+        user = {
             "email": "test@example.com",
             "username": "test",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        self.client.post(reverse("accounts:signup"), post)
+        self.client.post(reverse("accounts:signup"), user)
         post = {"content": "hello"}
         self.client.post(reverse("tweets:create"), post)
 
@@ -97,13 +96,13 @@ class TestTweetDeleteView(TestCase):
         self.assertTrue(Tweet.objects.filter(content="hello").exists())
 
     def test_failure_post_with_incorrect_user(self):
-        post2 = {
+        user2 = {
             "email": "test@example.com",
             "username": "second",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        self.client.post(reverse("accounts:signup"), post2)
+        self.client.post(reverse("accounts:signup"), user2)
         tweet = Tweet.objects.get(content="hello")
         response = self.client.post(reverse("tweets:delete", kwargs={"pk": tweet.pk}))
         self.assertEqual(response.status_code, 403)
