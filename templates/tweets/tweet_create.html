@@ -1,5 +1,8 @@
+{% extends 'base.html' %}
+{% block content %}
 <form method="post">
   {% csrf_token %}
   {{ form.as_p }}
   <button type="submit" name="投稿">投稿</button>
 </form>
+{% endblock %}
