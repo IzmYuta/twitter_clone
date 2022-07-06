@@ -76,7 +76,7 @@ class TestTweetDetailView(TestCase):
 
 class TestTweetDeleteView(TestCase):
     def setUp(self):
-        user = {
+        user1 = {
             "email": "test@example.com",
             "username": "test",
             "password1": "goodpass",
@@ -88,12 +88,11 @@ class TestTweetDeleteView(TestCase):
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        User.objects.create_user(user["username"], user["email"], user["password1"])
+        User.objects.create_user(user1["username"], user1["email"], user1["password1"])
         User.objects.create_user(user2["username"], user2["email"], user2["password1"])
-        self.client.login(username=user["username"], password=user["password1"])
         post = {"content": "hello"}
-        self.client.post(reverse("tweets:create"), post)
-        self.client.logout()
+        user = User.objects.get(username=user1["username"])
+        Tweet.objects.create(user=user, content=post["content"])
 
     def test_success_post(self):
         self.client.login(username="test", password="goodpass")
