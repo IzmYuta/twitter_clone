@@ -1,7 +1,9 @@
 from django.test import TestCase
 from django.urls import reverse
-
+from django.contrib.auth import get_user_model
 from tweets.models import Tweet
+
+User = get_user_model()
 
 
 class TestTweetCreateView(TestCase):
@@ -80,29 +82,34 @@ class TestTweetDeleteView(TestCase):
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        self.client.post(reverse("accounts:signup"), user)
-        post = {"content": "hello"}
-        self.client.post(reverse("tweets:create"), post)
-
-    def test_success_post(self):
-        tweet = Tweet.objects.get(content="hello")
-        response = self.client.post(reverse("tweets:delete", kwargs={"pk": tweet.pk}))
-        self.assertEqual(response.status_code, 302)
-        self.assertFalse(Tweet.objects.filter(content="hello").exists())
-
-    def test_failure_post_with_not_exist_tweet(self):
-        response = self.client.post(reverse("tweets:delete", kwargs={"pk": 100}))
-        self.assertEqual(response.status_code, 404)
-        self.assertTrue(Tweet.objects.filter(content="hello").exists())
-
-    def test_failure_post_with_incorrect_user(self):
         user2 = {
             "email": "test@example.com",
             "username": "second",
             "password1": "goodpass",
             "password2": "goodpass",
         }
-        self.client.post(reverse("accounts:signup"), user2)
+        User.objects.create_user(user["username"], user["email"], user["password1"])
+        User.objects.create_user(user2["username"], user2["email"], user2["password1"])
+        self.client.login(username=user["username"], password=user["password1"])
+        post = {"content": "hello"}
+        self.client.post(reverse("tweets:create"), post)
+        self.client.logout()
+
+    def test_success_post(self):
+        self.client.login(username="test", password="goodpass")
+        tweet = Tweet.objects.get(content="hello")
+        response = self.client.post(reverse("tweets:delete", kwargs={"pk": tweet.pk}))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(Tweet.objects.filter(content="hello").exists())
+
+    def test_failure_post_with_not_exist_tweet(self):
+        self.client.login(username="test", password="goodpass")
+        response = self.client.post(reverse("tweets:delete", kwargs={"pk": 100}))
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(Tweet.objects.filter(content="hello").exists())
+
+    def test_failure_post_with_incorrect_user(self):
+        self.client.login(username="second", password="goodpass")
         tweet = Tweet.objects.get(content="hello")
         response = self.client.post(reverse("tweets:delete", kwargs={"pk": tweet.pk}))
         self.assertEqual(response.status_code, 403)

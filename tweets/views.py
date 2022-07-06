@@ -16,9 +16,9 @@ class TweetCreateView(LoginRequiredMixin, CreateView):
     form_class = TweetForm
     success_url = reverse_lazy("accounts:home")
 
-    def post(self, request, *args, **kwargs):
-        self.object = Tweet(user=self.request.user)
-        return super(BaseCreateView, self).post(request, *args, **kwargs)
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
 
 class TweetDetailView(DetailView):
