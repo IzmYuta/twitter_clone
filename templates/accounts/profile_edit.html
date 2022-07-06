@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+  <form method="post">
+    {% csrf_token %}
+    {{form.as_p}}
+    <button type="submit" name="変更">変更</button>
+    <a href="{% url 'accounts:user_profile' user.pk %}">戻る</a>
+  </form>
+{% endblock %}

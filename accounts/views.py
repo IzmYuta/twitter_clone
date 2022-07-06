@@ -2,11 +2,19 @@ from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, TemplateView, UpdateView, DetailView
+from django.views.generic import (
+    CreateView,
+    TemplateView,
+    UpdateView,
+    DetailView,
+    ListView,
+)
 from django.http import Http404
+
 
 from .forms import LoginForm, SignUpForm, ProfileEditForm
 from .models import Profile
+from tweets.models import Tweet
 
 User = get_user_model()
 
@@ -30,9 +38,11 @@ class WelcomeView(TemplateView):
     template_name = "welcome/index.html"
 
 
-class HomeView(TemplateView):
+class HomeView(ListView):
     template_name = "accounts/home.html"
-    model = User
+    context_object_name = "tweets"
+    model = Tweet
+    queryset = Tweet.objects.select_related("user").order_by("-created_at")
 
 
 class LoginView(LoginView):
@@ -57,6 +67,15 @@ class UserProfileView(LoginRequiredMixin, DetailView):
     template_name = "accounts/profile.html"
     model = Profile
     context_object_name = "profile"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["tweets"] = (
+            Tweet.objects.select_related("user")
+            .filter(user=self.request.user)
+            .order_by("-created_at")
+        )
+        return ctx
 
 
 class UserProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
