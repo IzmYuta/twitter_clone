@@ -401,9 +401,13 @@ class TestUnfollowView(TestCase):
 
 class TestFollowingListView(TestCase):
     def test_success_get(self):
-        pass
+        response = self.client.get(reverse("accounts:following_list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "accounts/following_list.html")
 
 
 class TestFollowerListView(TestCase):
     def test_success_get(self):
-        pass
+        response = self.client.get(reverse("accounts:follower_list"))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "accounts/follower_list.html")

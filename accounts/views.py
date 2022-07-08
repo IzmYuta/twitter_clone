@@ -92,3 +92,19 @@ class UserProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             return current_user.pk == self.kwargs["pk"]
         else:
             raise Http404
+
+
+class FollowView(TemplateView):
+    template_name = "accounts/follow.html"
+
+
+class UnFollowView(TemplateView):
+    template_name = "accounts/unfollow.html"
+
+
+class FollowingListView(TemplateView):
+    template_name = "accounts/following_list.html"
+
+
+class FollowerListView(TemplateView):
+    template_name = "accounts/follower_list.html"

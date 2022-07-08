@@ -23,8 +23,11 @@ class Profile(models.Model):
     )
 
 
-# class FriendShip(models.Model):
-#    pass
+class FriendShip(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    following = models.ManyToManyField(
+        "self", related_name="followed", symmetrical=False, blank=True
+    )
 
 
 @receiver(post_save, sender=User)
