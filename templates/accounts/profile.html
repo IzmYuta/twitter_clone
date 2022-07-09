@@ -3,7 +3,7 @@
   <h1>プロフィール</h1>
   <p>Gender：{{ profile.get_gender_display }}</p>
   <p>Self Introduction：{{ profile.self_intro }}</p>
-  <p>フォロー：<a href="{% url 'accounts:following_list' user.username %}">{{ follows }}</a> / フォロワー：<a href="{% url 'accounts:follower_list' user.username %}">{{ followers }}</a></p>
+  <p>フォロー：<a href="{% url 'accounts:following_list' user.username %}">{{ followings }}</a> / フォロワー：<a href="{% url 'accounts:follower_list' user.username %}">{{ followers }}</a></p>
 
   {% for tweet in tweets %}
     <p>{{ tweet.user }} / {{ tweet.created_at }}</p>

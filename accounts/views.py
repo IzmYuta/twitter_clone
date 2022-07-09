@@ -75,14 +75,8 @@ class UserProfileView(LoginRequiredMixin, DetailView):
             .filter(user=self.request.user)
             .order_by("-created_at")
         )
-        ctx["follows"] = (
-            FriendShip.objects.filter(user=self.request.user)
-            .prefetch_related("following")
-            .count()
-        )
-        ctx["followers"] = User.objects.filter(
-            friendship__following=self.request.user
-        ).count()
+        ctx["followings"] = FriendShip.objects.filter(followee=self.request.user).count()
+        ctx["followers"] = FriendShip.objects.filter(follower=self.request.user).count()
         return ctx
 
 
@@ -108,13 +102,12 @@ class FollowView(LoginRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         try:
-            user = User.objects.get(username=self.request.user.username)
-            following = User.objects.get(username=self.kwargs["username"])
-            if user == following:
+            followee = User.objects.get(username=self.request.user.username)
+            follower = User.objects.get(username=self.kwargs["username"])
+            if followee == follower:
                 messages.warning(request, "自分自身はフォローできません。")
             else:
-                instance, _ = FriendShip.objects.get_or_create(user=user)
-                instance.following.add(following)
+                FriendShip.objects.create(followee=followee, follower=follower)
         except User.DoesNotExist:
             messages.warning(request, "存在しないユーザーです。")
 
@@ -126,13 +119,12 @@ class UnFollowView(LoginRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         try:
-            user = User.objects.get(username=self.request.user.username)
-            following = User.objects.get(username=self.kwargs["username"])
-            if user == following:
+            followee = User.objects.get(username=self.request.user.username)
+            follower = User.objects.get(username=self.kwargs["username"])
+            if followee == follower:
                 messages.warning(request, "自分自身はフォローできません。")
             else:
-                instance = FriendShip.objects.get(user=user)
-                instance.following.remove(following)
+                FriendShip.objects.filter(followee=followee, follower=follower).delete()
         except User.DoesNotExist:
             messages.warning(request, "存在しないユーザーです。")
 
@@ -144,9 +136,7 @@ class FollowingListView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["followings"] = FriendShip.objects.filter(
-            user=self.request.user
-        ).prefetch_related("following")
+        ctx["followings"] = FriendShip.objects.filter(followee=self.request.user)
         return ctx
 
 
@@ -155,5 +145,5 @@ class FollowerListView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["followers"] = User.objects.filter(friendship__following=self.request.user)
+        ctx["followers"] = FriendShip.objects.filter(follower=self.request.user)
         return ctx
