@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-
+<h1>フォロー一覧</h1>
+{% for follow in followings %}
+  <p>{{ follow }}</p>
+{% endfor %}
 {% endblock %}

@@ -75,6 +75,14 @@ class UserProfileView(LoginRequiredMixin, DetailView):
             .filter(user=self.request.user)
             .order_by("-created_at")
         )
+        ctx["follows"] = (
+            FriendShip.objects.filter(user=self.request.user)
+            .prefetch_related("following")
+            .count()
+        )
+        ctx["followers"] = User.objects.filter(
+            friendship__following=self.request.user
+        ).count()
         return ctx
 
 
@@ -131,9 +139,21 @@ class UnFollowView(LoginRequiredMixin, TemplateView):
         return HttpResponseRedirect(reverse_lazy("accounts:home"))
 
 
-class FollowingListView(TemplateView):
+class FollowingListView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/following_list.html"
 
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["followings"] = FriendShip.objects.filter(
+            user=self.request.user
+        ).prefetch_related("following")
+        return ctx
 
-class FollowerListView(TemplateView):
+
+class FollowerListView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/follower_list.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["followers"] = User.objects.filter(friendship__following=self.request.user)
+        return ctx

@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
-
+<h1>フォロワー一覧</h1>
+{% for follower in followers %}
+<p>{{ follower }}</p>
+{% endfor %}
 {% endblock %}
