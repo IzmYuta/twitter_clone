@@ -2,7 +2,13 @@
 {% block content %}
   <h1>Home</h1>
   {% for tweet in tweets %}
-    <p>{{ tweet.user }} / {{ tweet.created_at }}</p>
+    <p>
+      {% if request.user != tweet.user %}
+        <a href="{% url 'accounts:follow' tweet.user.username %}">{{ tweet.user }}</a>
+      {% else %}
+        {{ tweet.user }}
+      {% endif %}
+      / {{ tweet.created_at }}</p>
     <p>{{ tweet.content }}</p>
     <a href="{% url 'tweets:detail' tweet.pk %}">詳細</a>
   {% endfor %}

@@ -26,7 +26,7 @@ class Profile(models.Model):
 class FriendShip(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     following = models.ManyToManyField(
-        "self", related_name="followed", symmetrical=False, blank=True
+        User, related_name="followed", symmetrical=False, blank=True
     )
 
 

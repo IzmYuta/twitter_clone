@@ -9,11 +9,11 @@ from django.views.generic import (
     DetailView,
     ListView,
 )
-from django.http import Http404
-
+from django.http import Http404, HttpResponseRedirect
+from django.contrib import messages
 
 from .forms import LoginForm, SignUpForm, ProfileEditForm
-from .models import Profile
+from .models import Profile, FriendShip
 from tweets.models import Tweet
 
 User = get_user_model()
@@ -94,12 +94,48 @@ class UserProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             raise Http404
 
 
-class FollowView(TemplateView):
+class FollowView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/follow.html"
+    model = FriendShip
+
+    def post(self, request, *args, **kwargs):
+        try:
+            user = User.objects.get(username=self.request.user.username)
+            following = User.objects.get(username=self.kwargs["username"])
+        except User.DoesNotExist:
+            # フォローするユーザーが存在しないとき
+            messages.warning(request, "存在しないユーザーです。")
+            return HttpResponseRedirect(reverse_lazy("accounts:home"))
+        if user == following:
+            # 自分自身をフォローしたときの動作
+            messages.warning(request, "自分自身はフォローできません。")
+        else:
+            instance = FriendShip.objects.create(user=user)
+            instance.following.add(following)
+
+        return HttpResponseRedirect(reverse_lazy("accounts:home"))
 
 
-class UnFollowView(TemplateView):
+class UnFollowView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/unfollow.html"
+
+    # def post(self, request, *args, **kwargs):
+    #     try:
+    #         user = User.objects.get(username=self.request.user.username)
+    #         following = User.objects.get(username=self.kwargs["username"])
+    #     except User.DoesNotExist:
+    #         # フォローするユーザーが存在しないとき
+    #         messages.warning(request, "存在しないユーザーです。")
+    #         return HttpResponseRedirect(reverse_lazy("accounts:home"))
+    #     if user == following:
+    #         # 自分自身をフォローしたときの動作
+    #         messages.warning(request, "自分自身はフォローできません。")
+    #         pass
+    #     else:
+    #         instance = FriendShip.objects.create(user=user)
+    #         instance.following.add(following)
+
+    # return HttpResponseRedirect(reverse_lazy("accounts:home"))
 
 
 class FollowingListView(TemplateView):
