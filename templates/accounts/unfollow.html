@@ -1,4 +1,10 @@
 {% extends 'base.html' %}
 {% block content %}
-
+<h1>Follow</h1>
+<p>{{ username }}をフォロー解除しますか？</p>
+<form method="post">
+  {% csrf_token %}
+  <input type="submit" value="フォロー解除">
+</form>
+<a href="{% url 'accounts:home'%}">キャンセル</a>
 {% endblock %}

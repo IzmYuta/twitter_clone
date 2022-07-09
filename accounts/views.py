@@ -102,16 +102,13 @@ class FollowView(LoginRequiredMixin, TemplateView):
         try:
             user = User.objects.get(username=self.request.user.username)
             following = User.objects.get(username=self.kwargs["username"])
+            if user == following:
+                messages.warning(request, "自分自身はフォローできません。")
+            else:
+                instance, _ = FriendShip.objects.get_or_create(user=user)
+                instance.following.add(following)
         except User.DoesNotExist:
-            # フォローするユーザーが存在しないとき
             messages.warning(request, "存在しないユーザーです。")
-            return HttpResponseRedirect(reverse_lazy("accounts:home"))
-        if user == following:
-            # 自分自身をフォローしたときの動作
-            messages.warning(request, "自分自身はフォローできません。")
-        else:
-            instance = FriendShip.objects.create(user=user)
-            instance.following.add(following)
 
         return HttpResponseRedirect(reverse_lazy("accounts:home"))
 
@@ -119,23 +116,19 @@ class FollowView(LoginRequiredMixin, TemplateView):
 class UnFollowView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/unfollow.html"
 
-    # def post(self, request, *args, **kwargs):
-    #     try:
-    #         user = User.objects.get(username=self.request.user.username)
-    #         following = User.objects.get(username=self.kwargs["username"])
-    #     except User.DoesNotExist:
-    #         # フォローするユーザーが存在しないとき
-    #         messages.warning(request, "存在しないユーザーです。")
-    #         return HttpResponseRedirect(reverse_lazy("accounts:home"))
-    #     if user == following:
-    #         # 自分自身をフォローしたときの動作
-    #         messages.warning(request, "自分自身はフォローできません。")
-    #         pass
-    #     else:
-    #         instance = FriendShip.objects.create(user=user)
-    #         instance.following.add(following)
+    def post(self, request, *args, **kwargs):
+        try:
+            user = User.objects.get(username=self.request.user.username)
+            following = User.objects.get(username=self.kwargs["username"])
+            if user == following:
+                messages.warning(request, "自分自身はフォローできません。")
+            else:
+                instance = FriendShip.objects.get(user=user)
+                instance.following.remove(following)
+        except User.DoesNotExist:
+            messages.warning(request, "存在しないユーザーです。")
 
-    # return HttpResponseRedirect(reverse_lazy("accounts:home"))
+        return HttpResponseRedirect(reverse_lazy("accounts:home"))
 
 
 class FollowingListView(TemplateView):
