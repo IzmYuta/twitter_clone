@@ -5,13 +5,13 @@
   {% for tweet in tweets %}
     <p>
       {% if request.user != tweet.user %}
-        {% if tweet.user|in_group:"followings.followee" %}
+        {% if tweet.user|in_group:followings %}
           <a href="{% url 'accounts:unfollow' tweet.user.username %}">{{ tweet.user }}</a>
         {% else %}
           <a href="{% url 'accounts:follow' tweet.user.username %}">{{ tweet.user }}</a>
         {% endif %}
       {% else %}
-        {{ tweet.user }}
+      <a href="{% url 'accounts:user_profile' user.pk %}">{{ tweet.user }}</a>
       {% endif %}
       / {{ tweet.created_at }}</p>
     <p>{{ tweet.content }}</p>

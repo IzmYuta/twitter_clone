@@ -4,5 +4,5 @@
 {% for follow in followings %}
 <a href="{% url 'accounts:unfollow' follow.follower.username %}">{{ follow.follower }}</a><br>
 {% endfor %}
-<a href="{{request.META.HTTP_REFERER}}">戻る</a>
+<a href="{% url 'accounts:user_profile' user.pk %}">戻る</a>
 {% endblock %}

@@ -166,7 +166,7 @@ class FollowerListView(LoginRequiredMixin, TemplateView):
         ctx = super().get_context_data(**kwargs)
         ctx["followings"] = FriendShip.objects.select_related(
             "followee", "follower"
-        ).filter(followee=self.request.user).values_list("followee", flat=True)
+        ).filter(followee=self.request.user)
         ctx["followers"] = FriendShip.objects.select_related(
             "followee", "follower"
         ).filter(follower=self.request.user)

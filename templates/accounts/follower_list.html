@@ -1,19 +1,13 @@
 {% extends 'base.html' %}
+{% load in_group %}
 {% block content %}
 <h1>フォロワー一覧</h1>
 {% for follower in followers %}
-  {{ followings }}
-  {% if follower.followee in followings %}
-
+  {% if follower.followee|in_group:followings %}
     <a href="{% url 'accounts:unfollow' follower.followee.username %}">{{ follower.followee }}</a><br>
   {% else %}
     <a href="{% url 'accounts:follow' follower.followee.username %}">{{ follower.followee }}</a><br>
   {% endif %}
 {% endfor %}
-
-{% for f in followings %}
-{{ f }}
-{% endfor %}
-
-<a href="{{request.META.HTTP_REFERER}}">戻る</a>
+<a href="{% url 'accounts:user_profile' user.pk %}">戻る</a>
 {% endblock %}
