@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
+{% load in_group %}
 {% block content %}
   <h1>Home</h1>
   {% for tweet in tweets %}
     <p>
       {% if request.user != tweet.user %}
-        {% if tweet.user in followings %}
+        {% if tweet.user|in_group:"followings.followee" %}
           <a href="{% url 'accounts:unfollow' tweet.user.username %}">{{ tweet.user }}</a>
         {% else %}
           <a href="{% url 'accounts:follow' tweet.user.username %}">{{ tweet.user }}</a>
@@ -14,7 +15,7 @@
       {% endif %}
       / {{ tweet.created_at }}</p>
     <p>{{ tweet.content }}</p>
-    <a href="{% url 'tweets:detail' tweet.pk %}">詳細</a>
+    <a href="{% url 'tweets:detail' tweet.pk %}">詳細</a><br>
   {% endfor %}
   <a href="{% url 'accounts:user_profile' user.pk %}">プロフィールを確認</a>
   <a href="{% url 'tweets:create'%}">ツイート</a>

@@ -6,5 +6,5 @@
   {% csrf_token %}
   <input type="submit" value="フォロー">
 </form>
-<a href="{% url 'accounts:home'%}">キャンセル</a>
+<a href="{{request.META.HTTP_REFERER}}">キャンセル</a>
 {% endblock %}

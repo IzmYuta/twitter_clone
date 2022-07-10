@@ -5,8 +5,6 @@
 
   {% if request.user == tweet.user %}
     <a href="{% url 'tweets:delete' tweet.pk %}">削除する</a>
-    <a href="{% url 'accounts:user_profile' user.pk %}">戻る</a>
-  {% else %}
-    <a href="{% url 'accounts:home'%}">戻る</a>
   {% endif %}
+  <a href="{{request.META.HTTP_REFERER}}">戻る</a>
 {% endblock %}

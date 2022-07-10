@@ -5,4 +5,5 @@
   {{ form.as_p }}
   <button type="submit" name="投稿">投稿</button>
 </form>
+<a href="{{request.META.HTTP_REFERER}}">戻る</a>
 {% endblock %}
