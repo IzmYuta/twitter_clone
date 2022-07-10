@@ -2,6 +2,6 @@
 {% block content %}
 <h1>フォロー一覧</h1>
 {% for follow in followings %}
-  <p>{{ follow }}</p>
+<a href="{% url 'accounts:unfollow' follow.follower.username %}">{{ follow.follower }}</a><br>
 {% endfor %}
 {% endblock %}

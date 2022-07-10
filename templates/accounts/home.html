@@ -4,7 +4,11 @@
   {% for tweet in tweets %}
     <p>
       {% if request.user != tweet.user %}
-        <a href="{% url 'accounts:follow' tweet.user.username %}">{{ tweet.user }}</a>
+        {% if tweet.user in followings %}
+          <a href="{% url 'accounts:unfollow' tweet.user.username %}">{{ tweet.user }}</a>
+        {% else %}
+          <a href="{% url 'accounts:follow' tweet.user.username %}">{{ tweet.user }}</a>
+        {% endif %}
       {% else %}
         {{ tweet.user }}
       {% endif %}

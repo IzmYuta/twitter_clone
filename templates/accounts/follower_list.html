@@ -2,6 +2,10 @@
 {% block content %}
 <h1>フォロワー一覧</h1>
 {% for follower in followers %}
-<p>{{ follower }}</p>
+  {% if follower.followee in followings %}
+    <a href="{% url 'accounts:unfollow' follower.followee.username %}">{{ follower.followee }}</a>
+  {% else %}
+    <a href="{% url 'accounts:follow' follower.followee.username %}">{{ follower.followee }}</a>
+  {% endif %}
 {% endfor %}
 {% endblock %}
