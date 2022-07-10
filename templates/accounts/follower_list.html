@@ -10,8 +10,10 @@
     <a href="{% url 'accounts:follow' follower.followee.username %}">{{ follower.followee }}</a><br>
   {% endif %}
 {% endfor %}
+
 {% for f in followings %}
-{{ f.follower }}
+{{ f }}
 {% endfor %}
+
 <a href="{{request.META.HTTP_REFERER}}">戻る</a>
 {% endblock %}
