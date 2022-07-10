@@ -144,8 +144,7 @@ class UnFollowView(LoginRequiredMixin, TemplateView):
             return HttpResponseRedirect(reverse_lazy("accounts:home"))
         else:
             messages.warning(request, "無効な操作です")
-            raise Http404
-
+            raise HttpResponse(status=200)
 
 
 class FollowingListView(LoginRequiredMixin, TemplateView):

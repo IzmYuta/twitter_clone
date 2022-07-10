@@ -295,22 +295,37 @@ class TestUserProfileView(TestCase):
             "password1": "goodpass",
             "password2": "goodpass",
         }
+        user2 = {
+            "email": "test@example.com",
+            "username": "second",
+            "password1": "goodpass",
+            "password2": "goodpass",
+        }
         self.client.post(reverse("accounts:signup"), user)
+        User.objects.create_user(user2["username"], user2["email"], user2["password1"])
         post = {"content": "hello"}
         post2 = {"content": "sorry"}
         self.client.post(reverse("tweets:create"), post)
         self.client.post(reverse("tweets:create"), post2)
+        self.user = User.objects.get(username="test")
+        self.user2 = User.objects.get(username="second")
+        FriendShip.objects.create(followee=self.user, follower=self.user2)
 
     def test_success_get(self):
-        user = User.objects.get(username="test")
         response = self.client.get(
-            reverse("accounts:user_profile", kwargs={"pk": user.pk})
+            reverse("accounts:user_profile", kwargs={"pk": self.user.pk})
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "accounts/profile.html")
         self.assertQuerysetEqual(
             response.context["tweets"],
-            Tweet.objects.filter(user=user).order_by("-created_at"),
+            Tweet.objects.filter(user=self.user).order_by("-created_at"),
+        )
+        self.assertEqual(
+            response.context["followings_num"],
+            FriendShip.objects.select_related("followee", "follower")
+            .filter(followee=self.user)
+            .count(),
         )
 
     def test_failure_get_with_not_exists_user(self):
@@ -424,10 +439,8 @@ class TestFollowView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertFalse(FriendShip.objects.filter(followee=self.user).exists())
 
-    def test_failure_post_with_already_user(self):
-        self.client.post(
-            reverse("accounts:follow", kwargs={"username": "second"}), None
-        )
+    def test_failure_post_with_already_followed_user(self):
+        FriendShip.objects.create(followee=self.user, follower=self.user2)
         response = self.client.post(
             reverse("accounts:follow", kwargs={"username": "test"}), None
         )
@@ -450,12 +463,11 @@ class TestUnfollowView(TestCase):
         }
         self.client.post(reverse("accounts:signup"), user)
         User.objects.create_user(user2["username"], user2["email"], user2["password1"])
-        self.client.post(
-            reverse("accounts:follow", kwargs={"username": "second"}), None
-        )
+        self.user = User.objects.get(username="test")
+        self.user2 = User.objects.get(username="second")
+        FriendShip.objects.create(followee=self.user, follower=self.user2)
 
     def test_success_post(self):
-        user2 = User.objects.get(username="second")
         response = self.client.post(
             reverse("accounts:unfollow", kwargs={"username": "second"}), None
         )
@@ -467,23 +479,28 @@ class TestUnfollowView(TestCase):
             msg_prefix="",
             fetch_redirect_response=True,
         )
-        self.assertFalse(FriendShip.objects.filter(follower=user2).exists())
+        self.assertFalse(FriendShip.objects.filter(follower=self.user2).exists())
 
     def test_failure_post_with_not_exist_user(self):
-        user2 = User.objects.get(username="second")
         response = self.client.post(
             reverse("accounts:unfollow", kwargs={"username": "third"}), None
         )
         self.assertEqual(response.status_code, 404)
-        self.assertTrue(FriendShip.objects.filter(follower=user2).exists())
+        self.assertTrue(FriendShip.objects.filter(follower=self.user2).exists())
 
     def test_failure_post_with_self(self):
-        user = User.objects.get(username="test")
         response = self.client.post(
             reverse("accounts:unfollow", kwargs={"username": "test"}), None
         )
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(FriendShip.objects.filter(followee=user).exists())
+        self.assertTrue(FriendShip.objects.filter(followee=self.user).exists())
+
+    def test_filure_post_with_already_unfollowed_user(self):
+        FriendShip.objects.filter(followee=self.user, follower=self.user2).delete()
+        response = self.client.post(
+            reverse("accounts:unfollow", kwargs={"username": "test"}), None
+        )
+        self.assertEqual(response.status_code, 200)
 
 
 class TestFollowingListView(TestCase):
