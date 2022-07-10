@@ -123,7 +123,7 @@ class FollowView(LoginRequiredMixin, TemplateView):
             messages.warning(request, "自分自身はフォローできません。")
             return HttpResponse(status=200)
         elif FriendShip.objects.filter(followee=followee, follower=follower).exists():
-            messages.warning(request, "無効な操作です")
+            messages.warning(request, "すでにフォローしています。")
             return HttpResponse(status=200)
         else:
             FriendShip.objects.create(followee=followee, follower=follower)
