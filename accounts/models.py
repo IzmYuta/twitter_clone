@@ -25,10 +25,10 @@ class Profile(models.Model):
 
 class FriendShip(models.Model):
     followee = models.ForeignKey(
-        User, related_name="follower", on_delete=models.CASCADE
+        User, related_name="followee", on_delete=models.CASCADE
     )
     follower = models.ForeignKey(
-        User, related_name="followee", on_delete=models.CASCADE
+        User, related_name="follower", on_delete=models.CASCADE
     )
 
     class Meta:

@@ -393,9 +393,10 @@ class TestFollowView(TestCase):
         }
         self.client.post(reverse("accounts:signup"), user)
         User.objects.create_user(user2["username"], user2["email"], user2["password1"])
+        self.user = User.objects.get(username="test")
+        self.user2 = User.objects.get(username="second")
 
     def test_success_post(self):
-        user2 = User.objects.get(username="second")
         response = self.client.post(
             reverse("accounts:follow", kwargs={"username": "second"}), None
         )
@@ -407,23 +408,30 @@ class TestFollowView(TestCase):
             msg_prefix="",
             fetch_redirect_response=True,
         )
-        self.assertTrue(FriendShip.objects.filter(follower=user2).exists())
+        self.assertTrue(FriendShip.objects.filter(follower=self.user2).exists())
 
     def test_failure_post_with_not_exist_user(self):
-        user2 = User.objects.get(username="second")
         response = self.client.post(
             reverse("accounts:follow", kwargs={"username": "third"}), None
         )
         self.assertEqual(response.status_code, 404)
-        self.assertFalse(FriendShip.objects.filter(follower=user2).exists())
+        self.assertFalse(FriendShip.objects.filter(follower=self.user2).exists())
 
     def test_failure_post_with_self(self):
-        user = User.objects.get(username="test")
         response = self.client.post(
             reverse("accounts:follow", kwargs={"username": "test"}), None
         )
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(FriendShip.objects.filter(followee=user).exists())
+        self.assertFalse(FriendShip.objects.filter(followee=self.user).exists())
+
+    def test_failure_post_with_already_user(self):
+        self.client.post(
+            reverse("accounts:follow", kwargs={"username": "second"}), None
+        )
+        response = self.client.post(
+            reverse("accounts:follow", kwargs={"username": "test"}), None
+        )
+        self.assertEqual(response.status_code, 200)
 
 
 class TestUnfollowView(TestCase):
