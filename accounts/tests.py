@@ -190,13 +190,10 @@ class TestSignUpView(TestCase):
 
 class TestHomeView(TestCase):
     def setUp(self):
-        user = {
-            "email": "test@example.com",
-            "username": "test",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        self.client.post(reverse("accounts:signup"), user)
+        self.user = User.objects.create_user(
+            username="test", email="test@test.com", password="goodpass"
+        )
+        self.client.login(username="test", password="goodpass")
         post = {"content": "hello"}
         post2 = {"content": "sorry"}
         self.client.post(reverse("tweets:create"), post)
@@ -213,13 +210,9 @@ class TestHomeView(TestCase):
 
 class TestLoginView(TestCase):
     def setUp(self):
-        user = {
-            "email": "test@example.com",
-            "username": "test",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        User.objects.create_user(user["username"], user["email"], user["password1"])
+        self.user = User.objects.create_user(
+            username="test", email="test@test.com", password="goodpass"
+        )
 
     def test_success_get(self):
         response = self.client.get(reverse("accounts:login"))
@@ -268,13 +261,10 @@ class TestLoginView(TestCase):
 
 class TestLogoutView(TestCase):
     def setUp(self):
-        user = {
-            "email": "test@example.com",
-            "username": "test",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        self.client.post(reverse("accounts:signup"), user)
+        self.user = User.objects.create_user(
+            username="test", email="test@test.com", password="goodpass"
+        )
+        self.client.login(username="test", password="goodpass")
 
     def test_success_get(self):
         response = self.client.get(reverse("accounts:logout"))
@@ -289,26 +279,17 @@ class TestLogoutView(TestCase):
 
 class TestUserProfileView(TestCase):
     def setUp(self):
-        user = {
-            "email": "test@example.com",
-            "username": "test",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        user2 = {
-            "email": "test@example.com",
-            "username": "second",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        self.client.post(reverse("accounts:signup"), user)
-        User.objects.create_user(user2["username"], user2["email"], user2["password1"])
+        self.user = User.objects.create_user(
+            username="test", email="test@test.com", password="goodpass"
+        )
+        self.user2 = User.objects.create_user(
+            username="test2", email="test2@test.com", password="goodpass"
+        )
+        self.client.login(username="test", password="goodpass")
         post = {"content": "hello"}
         post2 = {"content": "sorry"}
         self.client.post(reverse("tweets:create"), post)
         self.client.post(reverse("tweets:create"), post2)
-        self.user = User.objects.get(username="test")
-        self.user2 = User.objects.get(username="second")
         FriendShip.objects.create(followee=self.user, follower=self.user2)
 
     def test_success_get(self):
@@ -335,34 +316,30 @@ class TestUserProfileView(TestCase):
 
 class TestUserProfileEditView(TestCase):
     def setUp(self):
-        user = {
-            "email": "test@example.com",
-            "username": "test",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
+        self.user = User.objects.create_user(
+            username="test", email="test@test.com", password="goodpass"
+        )
+        self.client.login(username="test", password="goodpass")
         self.editPost = {
             "gender": 3,
             "self_intro": "よろしく",
         }
-        self.client.post(reverse("accounts:signup"), user)
 
     def test_success_get(self):
-        user = User.objects.get(username="test")
         response = self.client.get(
-            reverse("accounts:user_profile_edit", kwargs={"pk": user.pk})
+            reverse("accounts:user_profile_edit", kwargs={"pk": self.user.pk})
         )
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "accounts/profile_edit.html")
 
     def test_success_post(self):
-        user = User.objects.get(username="test")
         response = self.client.post(
-            reverse("accounts:user_profile_edit", kwargs={"pk": user.pk}), self.editPost
+            reverse("accounts:user_profile_edit", kwargs={"pk": self.user.pk}),
+            self.editPost,
         )
         self.assertRedirects(
             response,
-            reverse("accounts:user_profile", kwargs={"pk": user.pk}),
+            reverse("accounts:user_profile", kwargs={"pk": self.user.pk}),
             status_code=302,
             target_status_code=200,
         )
@@ -376,14 +353,9 @@ class TestUserProfileEditView(TestCase):
         self.assertFalse(Profile.objects.filter(gender=3).exists())
 
     def test_failure_post_with_incorrect_user(self):
-        user2 = {
-            "email": "second@example.com",
-            "username": "second",
-            "password1": "goodpass2",
-            "password2": "goodpass2",
-        }
-        User.objects.create_user(user2["username"], user2["email"], user2["password1"])
-        user2 = User.objects.get(username="second")
+        user2 = User.objects.create_user(
+            username="test2", email="test2@test.com", password="goodpass"
+        )
         response = self.client.post(
             reverse("accounts:user_profile_edit", kwargs={"pk": user2.pk}),
             self.editPost,
@@ -394,26 +366,17 @@ class TestUserProfileEditView(TestCase):
 
 class TestFollowView(TestCase):
     def setUp(self):
-        user = {
-            "email": "test@example.com",
-            "username": "test",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        user2 = {
-            "email": "test@example.com",
-            "username": "second",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        self.client.post(reverse("accounts:signup"), user)
-        User.objects.create_user(user2["username"], user2["email"], user2["password1"])
-        self.user = User.objects.get(username="test")
-        self.user2 = User.objects.get(username="second")
+        self.user = User.objects.create_user(
+            username="test", email="test@test.com", password="goodpass"
+        )
+        self.user2 = User.objects.create_user(
+            username="test2", email="test2@test.com", password="goodpass"
+        )
+        self.client.login(username="test", password="goodpass")
 
     def test_success_post(self):
         response = self.client.post(
-            reverse("accounts:follow", kwargs={"username": "second"}), None
+            reverse("accounts:follow", kwargs={"username": "test2"}), None
         )
         self.assertRedirects(
             response,
@@ -449,27 +412,18 @@ class TestFollowView(TestCase):
 
 class TestUnfollowView(TestCase):
     def setUp(self):
-        user = {
-            "email": "test@example.com",
-            "username": "test",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        user2 = {
-            "email": "test@example.com",
-            "username": "second",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        self.client.post(reverse("accounts:signup"), user)
-        User.objects.create_user(user2["username"], user2["email"], user2["password1"])
-        self.user = User.objects.get(username="test")
-        self.user2 = User.objects.get(username="second")
+        self.user = User.objects.create_user(
+            username="test", email="test@test.com", password="goodpass"
+        )
+        self.user2 = User.objects.create_user(
+            username="test2", email="test2@test.com", password="goodpass"
+        )
+        self.client.login(username="test", password="goodpass")
         FriendShip.objects.create(followee=self.user, follower=self.user2)
 
     def test_success_post(self):
         response = self.client.post(
-            reverse("accounts:unfollow", kwargs={"username": "second"}), None
+            reverse("accounts:unfollow", kwargs={"username": "test2"}), None
         )
         self.assertRedirects(
             response,
@@ -505,23 +459,14 @@ class TestUnfollowView(TestCase):
 
 class TestFollowingListView(TestCase):
     def setUp(self):
-        user = {
-            "email": "test@example.com",
-            "username": "test",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        user2 = {
-            "email": "test@example.com",
-            "username": "second",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        self.client.post(reverse("accounts:signup"), user)
-        User.objects.create_user(user2["username"], user2["email"], user2["password1"])
-        self.client.post(
-            reverse("accounts:follow", kwargs={"username": "second"}), None
+        self.user = User.objects.create_user(
+            username="test", email="test@test.com", password="goodpass"
         )
+        self.user2 = User.objects.create_user(
+            username="test2", email="test2@test.com", password="goodpass"
+        )
+        self.client.login(username="test", password="goodpass")
+        FriendShip.objects.create(followee=self.user, follower=self.user2)
 
     def test_success_get(self):
         response = self.client.get(
@@ -533,21 +478,14 @@ class TestFollowingListView(TestCase):
 
 class TestFollowerListView(TestCase):
     def setUp(self):
-        user = {
-            "email": "test@example.com",
-            "username": "test",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        user2 = {
-            "email": "test@example.com",
-            "username": "second",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        User.objects.create_user(user["username"], user["email"], user["password1"])
-        self.client.post(reverse("accounts:signup"), user2)
-        self.client.post(reverse("accounts:follow", kwargs={"username": "test"}), None)
+        self.user = User.objects.create_user(
+            username="test", email="test@test.com", password="goodpass"
+        )
+        self.user2 = User.objects.create_user(
+            username="test2", email="test2@test.com", password="goodpass"
+        )
+        self.client.login(username="test", password="goodpass")
+        FriendShip.objects.create(followee=self.user2, follower=self.user)
 
     def test_success_get(self):
         response = self.client.get(
