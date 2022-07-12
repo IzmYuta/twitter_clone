@@ -9,9 +9,9 @@ from django.views.generic import (
     DetailView,
     ListView,
 )
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import Http404, HttpResponseRedirect
 from django.contrib import messages
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render
 
 from .forms import LoginForm, SignUpForm, ProfileEditForm
 from .models import Profile, FriendShip
@@ -121,10 +121,10 @@ class FollowView(LoginRequiredMixin, TemplateView):
         follower = get_object_or_404(User, username=self.kwargs["username"])
         if followee == follower:
             messages.warning(request, "自分自身はフォローできません。")
-            return HttpResponse(status=200)
+            return render(request, "accounts/follow.html")
         elif FriendShip.objects.filter(followee=followee, follower=follower).exists():
             messages.warning(request, "すでにフォローしています。")
-            return HttpResponse(status=200)
+            return render(request, "accounts/follow.html")
         else:
             FriendShip.objects.create(followee=followee, follower=follower)
             return HttpResponseRedirect(reverse_lazy("accounts:home"))
@@ -138,13 +138,13 @@ class UnFollowView(LoginRequiredMixin, TemplateView):
         follower = get_object_or_404(User, username=self.kwargs["username"])
         if followee == follower:
             messages.warning(request, "自分自身はフォローできません。")
-            return HttpResponse(status=200)
+            return render(request, "accounts/unfollow.html")
         if FriendShip.objects.filter(followee=followee, follower=follower).exists():
             FriendShip.objects.filter(followee=followee, follower=follower).delete()
             return HttpResponseRedirect(reverse_lazy("accounts:home"))
         else:
             messages.warning(request, "無効な操作です")
-            raise HttpResponse(status=200)
+            return render(request, "accounts/unfollow.html")
 
 
 class FollowingListView(LoginRequiredMixin, TemplateView):
