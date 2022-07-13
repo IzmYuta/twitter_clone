@@ -1,3 +1,4 @@
+from ctypes import get_last_error
 from django.contrib.auth import get_user_model, SESSION_KEY
 from django.test import TestCase
 from django.urls import reverse
@@ -395,9 +396,9 @@ class TestFollowView(TestCase):
         )
         self.assertEqual(response.status_code, 404)
         self.assertFalse(FriendShip.objects.filter(follower=self.user2).exists())
-        # messages = list(get_messages(response.wsgi_request))
-        # message = str(messages[0])
-        # self.assertEqual(message, "存在しないユーザーです。")
+        messages = list(get_messages(response.wsgi_request))
+        message = str(messages[0])
+        self.assertEqual(message, "存在しないユーザーです。")
 
     def test_failure_post_with_self(self):
         response = self.client.post(
@@ -451,9 +452,9 @@ class TestUnfollowView(TestCase):
         )
         self.assertEqual(response.status_code, 404)
         self.assertTrue(FriendShip.objects.filter(follower=self.user2).exists())
-        # messages = list(get_messages(response.wsgi_request))
-        # message = str(messages[0])
-        # self.assertEqual(message, "存在しないユーザーです。")
+        messages = list(get_messages(response.wsgi_request))
+        message = str(messages[0])
+        self.assertEqual(message, "存在しないユーザーです。")
 
     def test_failure_post_with_self(self):
         response = self.client.post(

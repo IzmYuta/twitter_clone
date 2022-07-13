@@ -117,38 +117,52 @@ class FollowView(LoginRequiredMixin, TemplateView):
     model = FriendShip
 
     def post(self, request, *args, **kwargs):
-        followee = get_object_or_404(User, username=request.user.username)
-        follower = get_object_or_404(User, username=self.kwargs["username"])
-        # if not follower:
-        #     messages.warning(request, "存在しないユーザーです。")
-        if followee == follower:
-            messages.warning(request, "自分自身はフォローできません。")
-            return render(request, "accounts/follow.html")
-        elif FriendShip.objects.filter(followee=followee, follower=follower).exists():
-            messages.warning(request, "すでにフォローしています。")
-            return render(request, "accounts/follow.html")
-        else:
-            FriendShip.objects.create(followee=followee, follower=follower)
-            return HttpResponseRedirect(reverse_lazy("accounts:home"))
+        try:
+            followee = User.objects.get(username=request.user.username)
+            follower = User.objects.get(username=self.kwargs["username"])
+            # if not follower:
+            #     messages.warning(request, "存在しないユーザーです。")
+            if followee == follower:
+                messages.warning(request, "自分自身はフォローできません。")
+                return render(request, "accounts/follow.html")
+            elif FriendShip.objects.filter(
+                followee=followee, follower=follower
+            ).exists():
+                messages.warning(request, "すでにフォローしています。")
+                return render(request, "accounts/follow.html")
+            else:
+                FriendShip.objects.create(followee=followee, follower=follower)
+                return HttpResponseRedirect(reverse_lazy("accounts:home"))
+        except User.DoesNotExist:
+            messages.error(request, "存在しないユーザーです。")
+            raise Http404
 
 
 class UnFollowView(LoginRequiredMixin, TemplateView):
     template_name = "accounts/unfollow.html"
 
     def post(self, request, *args, **kwargs):
-        followee = get_object_or_404(User, username=request.user.username)
-        follower = get_object_or_404(User, username=self.kwargs["username"])
-        # if not follower:
-        #     messages.warning(request, "存在しないユーザーです。")
-        if followee == follower:
-            messages.warning(request, "自分自身はフォロー解除できません。")
-            return render(request, "accounts/unfollow.html")
-        elif FriendShip.objects.filter(followee=followee, follower=follower).exists():
-            FriendShip.objects.filter(followee=followee, follower=follower).delete()
-            return HttpResponseRedirect(reverse_lazy("accounts:home"))
-        else:
-            messages.warning(request, "無効な操作です。")
-            return render(request, "accounts/unfollow.html")
+        try:
+            # followee = get_object_or_404(User, username=request.user.username)
+            # follower = get_object_or_404(User, username=self.kwargs["username"])
+            followee = User.objects.get(username=request.user.username)
+            follower = User.objects.get(username=self.kwargs["username"])
+            # if not follower:
+            #     messages.warning(request, "存在しないユーザーです。")
+            if followee == follower:
+                messages.warning(request, "自分自身はフォロー解除できません。")
+                return render(request, "accounts/unfollow.html")
+            elif FriendShip.objects.filter(
+                followee=followee, follower=follower
+            ).exists():
+                FriendShip.objects.filter(followee=followee, follower=follower).delete()
+                return HttpResponseRedirect(reverse_lazy("accounts:home"))
+            else:
+                messages.warning(request, "無効な操作です。")
+                return render(request, "accounts/unfollow.html")
+        except User.DoesNotExist:
+            messages.error(request, "存在しないユーザーです。")
+            raise Http404
 
 
 class FollowingListView(LoginRequiredMixin, TemplateView):
