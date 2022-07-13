@@ -119,6 +119,8 @@ class FollowView(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         followee = get_object_or_404(User, username=request.user.username)
         follower = get_object_or_404(User, username=self.kwargs["username"])
+        # if not follower:
+        #     messages.warning(request, "存在しないユーザーです。")
         if followee == follower:
             messages.warning(request, "自分自身はフォローできません。")
             return render(request, "accounts/follow.html")
@@ -136,14 +138,16 @@ class UnFollowView(LoginRequiredMixin, TemplateView):
     def post(self, request, *args, **kwargs):
         followee = get_object_or_404(User, username=request.user.username)
         follower = get_object_or_404(User, username=self.kwargs["username"])
+        # if not follower:
+        #     messages.warning(request, "存在しないユーザーです。")
         if followee == follower:
-            messages.warning(request, "自分自身はフォローできません。")
+            messages.warning(request, "自分自身はフォロー解除できません。")
             return render(request, "accounts/unfollow.html")
-        if FriendShip.objects.filter(followee=followee, follower=follower).exists():
+        elif FriendShip.objects.filter(followee=followee, follower=follower).exists():
             FriendShip.objects.filter(followee=followee, follower=follower).delete()
             return HttpResponseRedirect(reverse_lazy("accounts:home"))
         else:
-            messages.warning(request, "無効な操作です")
+            messages.warning(request, "無効な操作です。")
             return render(request, "accounts/unfollow.html")
 
 
