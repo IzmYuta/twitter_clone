@@ -11,7 +11,7 @@ from django.views.generic import (
 )
 from django.http import Http404, HttpResponseRedirect
 from django.contrib import messages
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
 
 from .forms import LoginForm, SignUpForm, ProfileEditForm
 from .models import Profile, FriendShip
@@ -120,8 +120,6 @@ class FollowView(LoginRequiredMixin, TemplateView):
         try:
             followee = User.objects.get(username=request.user.username)
             follower = User.objects.get(username=self.kwargs["username"])
-            # if not follower:
-            #     messages.warning(request, "存在しないユーザーです。")
             if followee == follower:
                 messages.warning(request, "自分自身はフォローできません。")
                 return render(request, "accounts/follow.html")
@@ -143,12 +141,8 @@ class UnFollowView(LoginRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         try:
-            # followee = get_object_or_404(User, username=request.user.username)
-            # follower = get_object_or_404(User, username=self.kwargs["username"])
             followee = User.objects.get(username=request.user.username)
             follower = User.objects.get(username=self.kwargs["username"])
-            # if not follower:
-            #     messages.warning(request, "存在しないユーザーです。")
             if followee == follower:
                 messages.warning(request, "自分自身はフォロー解除できません。")
                 return render(request, "accounts/unfollow.html")

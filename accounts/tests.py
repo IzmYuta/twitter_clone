@@ -1,4 +1,3 @@
-from ctypes import get_last_error
 from django.contrib.auth import get_user_model, SESSION_KEY
 from django.test import TestCase
 from django.urls import reverse
