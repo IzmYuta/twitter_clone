@@ -2,7 +2,7 @@
 {% block content %}
 <h1>フォロー一覧</h1>
 {% for follow in followings %}
-<a href="{% url 'accounts:unfollow' follow.follower.username %}">{{ follow.follower }}</a><br>
+<a href="{% url 'accounts:unfollow' follow.followed.username %}">{{ follow.followed }}</a><br>
 {% endfor %}
 <a href="{% url 'accounts:user_profile' user.pk %}">戻る</a>
 {% endblock %}

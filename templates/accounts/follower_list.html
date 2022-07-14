@@ -3,11 +3,11 @@
 {% block content %}
 <h1>フォロワー一覧</h1>
 {% for follower in followers %}
-  {% if follower.followee|in_group:followings %}
-    <a href="{% url 'accounts:unfollow' follower.followee.username %}">{{ follower.followee }}</a><br>
-  {% else %}
-    <a href="{% url 'accounts:follow' follower.followee.username %}">{{ follower.followee }}</a><br>
-  {% endif %}
+{% if follower.following|in_group:followings %}
+<a href="{% url 'accounts:unfollow' follower.following.username %}">{{ follower.following }}</a><br>
+{% else %}
+<a href="{% url 'accounts:follow' follower.following.username %}">{{ follower.following }}</a><br>
+{% endif %}
 {% endfor %}
 <a href="{% url 'accounts:user_profile' user.pk %}">戻る</a>
 {% endblock %}

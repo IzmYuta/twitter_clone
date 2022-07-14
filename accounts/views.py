@@ -48,8 +48,8 @@ class HomeView(ListView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["followings"] = FriendShip.objects.select_related(
-            "followee", "follower"
-        ).filter(followee=self.request.user)
+            "following", "followed"
+        ).filter(following=self.request.user)
         return ctx
 
 
@@ -84,13 +84,13 @@ class UserProfileView(LoginRequiredMixin, DetailView):
             .order_by("-created_at")
         )
         ctx["followings_num"] = (
-            FriendShip.objects.select_related("followee", "follower")
-            .filter(followee=self.request.user)
+            FriendShip.objects.select_related("following", "followed")
+            .filter(following=self.request.user)
             .count()
         )
         ctx["followers_num"] = (
-            FriendShip.objects.select_related("followee", "follower")
-            .filter(follower=self.request.user)
+            FriendShip.objects.select_related("following", "followed")
+            .filter(followed=self.request.user)
             .count()
         )
         return ctx
@@ -118,18 +118,18 @@ class FollowView(LoginRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         try:
-            followee = User.objects.get(username=request.user.username)
-            follower = User.objects.get(username=self.kwargs["username"])
-            if followee == follower:
+            following = User.objects.get(username=request.user.username)
+            followed = User.objects.get(username=self.kwargs["username"])
+            if following == followed:
                 messages.warning(request, "自分自身はフォローできません。")
                 return render(request, "accounts/follow.html")
             elif FriendShip.objects.filter(
-                followee=followee, follower=follower
+                following=following, followed=followed
             ).exists():
                 messages.warning(request, "すでにフォローしています。")
                 return render(request, "accounts/follow.html")
             else:
-                FriendShip.objects.create(followee=followee, follower=follower)
+                FriendShip.objects.create(following=following, followed=followed)
                 return HttpResponseRedirect(reverse_lazy("accounts:home"))
         except User.DoesNotExist:
             messages.error(request, "存在しないユーザーです。")
@@ -141,15 +141,17 @@ class UnFollowView(LoginRequiredMixin, TemplateView):
 
     def post(self, request, *args, **kwargs):
         try:
-            followee = User.objects.get(username=request.user.username)
-            follower = User.objects.get(username=self.kwargs["username"])
-            if followee == follower:
+            following = User.objects.get(username=request.user.username)
+            followed = User.objects.get(username=self.kwargs["username"])
+            if following == followed:
                 messages.warning(request, "自分自身はフォロー解除できません。")
                 return render(request, "accounts/unfollow.html")
             elif FriendShip.objects.filter(
-                followee=followee, follower=follower
+                following=following, followed=followed
             ).exists():
-                FriendShip.objects.filter(followee=followee, follower=follower).delete()
+                FriendShip.objects.filter(
+                    following=following, followed=followed
+                ).delete()
                 return HttpResponseRedirect(reverse_lazy("accounts:home"))
             else:
                 messages.warning(request, "無効な操作です。")
@@ -165,8 +167,8 @@ class FollowingListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["followings"] = FriendShip.objects.select_related(
-            "followee", "follower"
-        ).filter(followee=self.request.user)
+            "following", "followed"
+        ).filter(following=self.request.user)
         return ctx
 
 
@@ -176,9 +178,9 @@ class FollowerListView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["followings"] = FriendShip.objects.select_related(
-            "followee", "follower"
-        ).filter(followee=self.request.user)
+            "following", "followed"
+        ).filter(following=self.request.user)
         ctx["followers"] = FriendShip.objects.select_related(
-            "followee", "follower"
-        ).filter(follower=self.request.user)
+            "following", "followed"
+        ).filter(followed=self.request.user)
         return ctx

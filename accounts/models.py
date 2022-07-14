@@ -24,17 +24,17 @@ class Profile(models.Model):
 
 
 class FriendShip(models.Model):
-    followee = models.ForeignKey(
-        User, related_name="followee", on_delete=models.CASCADE
+    following = models.ForeignKey(
+        User, related_name="following", on_delete=models.CASCADE
     )
-    follower = models.ForeignKey(
-        User, related_name="follower", on_delete=models.CASCADE
+    followed = models.ForeignKey(
+        User, related_name="followed", on_delete=models.CASCADE
     )
 
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=["followee", "follower"], name="follow_unique"
+                fields=["following", "followed"], name="follow_unique"
             ),
         ]
 
