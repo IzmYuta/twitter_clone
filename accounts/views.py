@@ -9,11 +9,12 @@ from django.views.generic import (
     DetailView,
     ListView,
 )
-from django.http import Http404
-
+from django.http import Http404, HttpResponseRedirect
+from django.contrib import messages
+from django.shortcuts import render
 
 from .forms import LoginForm, SignUpForm, ProfileEditForm
-from .models import Profile
+from .models import Profile, FriendShip
 from tweets.models import Tweet
 
 User = get_user_model()
@@ -43,6 +44,13 @@ class HomeView(ListView):
     context_object_name = "tweets"
     model = Tweet
     queryset = Tweet.objects.select_related("user").order_by("-created_at")
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["followings"] = FriendShip.objects.select_related(
+            "following", "followed"
+        ).filter(following=self.request.user)
+        return ctx
 
 
 class LoginView(LoginView):
@@ -75,6 +83,16 @@ class UserProfileView(LoginRequiredMixin, DetailView):
             .filter(user=self.request.user)
             .order_by("-created_at")
         )
+        ctx["followings_num"] = (
+            FriendShip.objects.select_related("following", "followed")
+            .filter(following=self.request.user)
+            .count()
+        )
+        ctx["followers_num"] = (
+            FriendShip.objects.select_related("following", "followed")
+            .filter(followed=self.request.user)
+            .count()
+        )
         return ctx
 
 
@@ -92,3 +110,77 @@ class UserProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             return current_user.pk == self.kwargs["pk"]
         else:
             raise Http404
+
+
+class FollowView(LoginRequiredMixin, TemplateView):
+    template_name = "accounts/follow.html"
+    model = FriendShip
+
+    def post(self, request, *args, **kwargs):
+        try:
+            following = User.objects.get(username=request.user.username)
+            followed = User.objects.get(username=self.kwargs["username"])
+            if following == followed:
+                messages.warning(request, "自分自身はフォローできません。")
+                return render(request, "accounts/follow.html")
+            elif FriendShip.objects.filter(
+                following=following, followed=followed
+            ).exists():
+                messages.warning(request, "すでにフォローしています。")
+                return render(request, "accounts/follow.html")
+            else:
+                FriendShip.objects.create(following=following, followed=followed)
+                return HttpResponseRedirect(reverse_lazy("accounts:home"))
+        except User.DoesNotExist:
+            messages.error(request, "存在しないユーザーです。")
+            raise Http404
+
+
+class UnFollowView(LoginRequiredMixin, TemplateView):
+    template_name = "accounts/unfollow.html"
+
+    def post(self, request, *args, **kwargs):
+        try:
+            following = User.objects.get(username=request.user.username)
+            followed = User.objects.get(username=self.kwargs["username"])
+            if following == followed:
+                messages.warning(request, "自分自身はフォロー解除できません。")
+                return render(request, "accounts/unfollow.html")
+            elif FriendShip.objects.filter(
+                following=following, followed=followed
+            ).exists():
+                FriendShip.objects.filter(
+                    following=following, followed=followed
+                ).delete()
+                return HttpResponseRedirect(reverse_lazy("accounts:home"))
+            else:
+                messages.warning(request, "無効な操作です。")
+                return render(request, "accounts/unfollow.html")
+        except User.DoesNotExist:
+            messages.error(request, "存在しないユーザーです。")
+            raise Http404
+
+
+class FollowingListView(LoginRequiredMixin, TemplateView):
+    template_name = "accounts/following_list.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["followings"] = FriendShip.objects.select_related(
+            "following", "followed"
+        ).filter(following=self.request.user)
+        return ctx
+
+
+class FollowerListView(LoginRequiredMixin, TemplateView):
+    template_name = "accounts/follower_list.html"
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx["followings"] = FriendShip.objects.select_related(
+            "following", "followed"
+        ).filter(following=self.request.user)
+        ctx["followers"] = FriendShip.objects.select_related(
+            "following", "followed"
+        ).filter(followed=self.request.user)
+        return ctx

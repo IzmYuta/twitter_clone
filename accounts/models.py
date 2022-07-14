@@ -23,8 +23,20 @@ class Profile(models.Model):
     )
 
 
-# class FriendShip(models.Model):
-#    pass
+class FriendShip(models.Model):
+    following = models.ForeignKey(
+        User, related_name="following", on_delete=models.CASCADE
+    )
+    followed = models.ForeignKey(
+        User, related_name="followed", on_delete=models.CASCADE
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["following", "followed"], name="follow_unique"
+            ),
+        ]
 
 
 @receiver(post_save, sender=User)

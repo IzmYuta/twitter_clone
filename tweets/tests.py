@@ -8,13 +8,10 @@ User = get_user_model()
 
 class TestTweetCreateView(TestCase):
     def setUp(self):
-        user = {
-            "email": "test@example.com",
-            "username": "test",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        self.client.post(reverse("accounts:signup"), user)
+        self.user = User.objects.create_user(
+            username="test", email="test@test.com", password="goodpass"
+        )
+        self.client.login(username="test", password="goodpass")
         self.url = reverse("tweets:create")
 
     def test_success_get(self):
@@ -57,13 +54,10 @@ class TestTweetCreateView(TestCase):
 
 class TestTweetDetailView(TestCase):
     def setUp(self):
-        user = {
-            "email": "test@example.com",
-            "username": "test",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        self.client.post(reverse("accounts:signup"), user)
+        self.user = User.objects.create_user(
+            username="test", email="test@test.com", password="goodpass"
+        )
+        self.client.login(username="test", password="goodpass")
         post = {"content": "hello"}
         self.client.post(reverse("tweets:create"), post)
 
@@ -76,23 +70,14 @@ class TestTweetDetailView(TestCase):
 
 class TestTweetDeleteView(TestCase):
     def setUp(self):
-        user1 = {
-            "email": "test@example.com",
-            "username": "test",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        user2 = {
-            "email": "test@example.com",
-            "username": "second",
-            "password1": "goodpass",
-            "password2": "goodpass",
-        }
-        User.objects.create_user(user1["username"], user1["email"], user1["password1"])
-        User.objects.create_user(user2["username"], user2["email"], user2["password1"])
+        self.user = User.objects.create_user(
+            username="test", email="test@test.com", password="goodpass"
+        )
+        self.user2 = User.objects.create_user(
+            username="test2", email="test2@test.com", password="goodpass"
+        )
         post = {"content": "hello"}
-        user = User.objects.get(username=user1["username"])
-        Tweet.objects.create(user=user, content=post["content"])
+        Tweet.objects.create(user=self.user, content=post["content"])
 
     def test_success_post(self):
         self.client.login(username="test", password="goodpass")
@@ -108,7 +93,7 @@ class TestTweetDeleteView(TestCase):
         self.assertTrue(Tweet.objects.filter(content="hello").exists())
 
     def test_failure_post_with_incorrect_user(self):
-        self.client.login(username="second", password="goodpass")
+        self.client.login(username="test2", password="goodpass")
         tweet = Tweet.objects.get(content="hello")
         response = self.client.post(reverse("tweets:delete", kwargs={"pk": tweet.pk}))
         self.assertEqual(response.status_code, 403)
