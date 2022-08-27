@@ -15,8 +15,9 @@
       {% endif %}
       / {{ tweet.created_at }}</p>
     <p>{{ tweet.content }}</p>
-    <a href="{% url 'tweets:detail' tweet.pk %}">詳細</a><br>
+    <a href="{% url 'tweets:detail' tweet.pk %}">詳細</a>{% include 'tweets/like.html' %}<br>
   {% endfor %}
   <a href="{% url 'accounts:user_profile' user.pk %}">プロフィールを確認</a>
   <a href="{% url 'tweets:create'%}">ツイート</a>
+  {% include 'tweets/scripts.html' %}
 {% endblock %}

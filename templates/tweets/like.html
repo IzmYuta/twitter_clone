@@ -1,0 +1,9 @@
+<form>
+  {% csrf_token %}
+  {% if liked %}
+  <button id="like" name="{{tweet.id}}"><i class="fas fa-lg fa-heart like-red"></i></button>
+  {% else %}
+  <button id="like" name="{{tweet.id}}"><i class="far fa-lg fa-heart"></i></button>
+  {% endif %}
+</form>
+<p name="{{tweet.id}}-count" class="count"> {{ tweet.like_set.count }} </p>

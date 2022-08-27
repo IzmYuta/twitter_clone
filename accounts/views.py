@@ -9,13 +9,13 @@ from django.views.generic import (
     DetailView,
     ListView,
 )
-from django.http import Http404, HttpResponseRedirect, JsonResponse
+from django.http import Http404, HttpResponseRedirect
 from django.contrib import messages
 from django.shortcuts import render
 
 from .forms import LoginForm, SignUpForm, ProfileEditForm
 from .models import Profile, FriendShip
-from tweets.models import Tweet, Like
+from tweets.models import Tweet
 
 
 User = get_user_model()
@@ -185,25 +185,3 @@ class FollowerListView(LoginRequiredMixin, TemplateView):
             "following", "followed"
         ).filter(followed=self.request.user)
         return ctx
-
-
-def LikeView(request):
-    if request.method == "POST":
-        tweet = Tweet.objects.get(pk=request.POST.get("article_id"))
-        user = request.user
-        liked = False
-        like = Like.objects.filter(tweet=tweet, user=user)
-        if like.exists():
-            like.delete()
-        else:
-            like.create(tweet=tweet, user=user)
-            liked = True
-
-        context = {
-            "tweet_id": tweet.id,
-            "liked": liked,
-            "count": tweet.like_set.count(),
-        }
-
-    if request.is_ajax():
-        return JsonResponse(context)

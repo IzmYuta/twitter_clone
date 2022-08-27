@@ -3,10 +3,11 @@ from django.views.generic import CreateView, DetailView, DeleteView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 
-from django.http import Http404
+
+from django.http import Http404, JsonResponse
 
 from .forms import TweetForm
-from .models import Tweet
+from .models import Tweet, Like
 
 User = get_user_model()
 
@@ -39,3 +40,24 @@ class TweetDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             return current_user.pk == tweet_user.pk
         else:
             raise Http404
+
+
+def LikeView(request, pk):
+    if request.method == "POST":
+        tweet = Tweet.objects.get(pk=pk)
+        user = request.user
+        liked = False
+        like = Like.objects.filter(tweet=tweet, user=user)
+        if like.exists():
+            like.delete()
+        else:
+            like.create(tweet=tweet, user=user)
+            liked = True
+
+        context = {
+            "tweet_id": tweet.id,
+            "liked": liked,
+            "count": tweet.like_set.count(),
+        }
+        # if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse(context)

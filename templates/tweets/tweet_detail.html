@@ -2,7 +2,7 @@
 {% block content %}
   <p>{{ tweet.user.username }} / {{ tweet.created_at }}</p>
   <p>{{ tweet.content }}</p>
-
+  {% include 'tweets/like.html' %}
   {% if request.user == tweet.user %}
     <a href="{% url 'tweets:delete' tweet.pk %}">削除する</a>
   {% endif %}

@@ -15,4 +15,5 @@
   <a href="{% url 'accounts:home' %}">ホーム</a>
   <a href="{% url 'accounts:user_profile_edit' user.pk %}">編集</a>
   <a href="{% url 'accounts:logout' %}">ログアウト</a>
+  {% include 'tweets/scripts.html' %}
 {% endblock %}
