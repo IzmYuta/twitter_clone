@@ -3,6 +3,7 @@ from django.views.generic import CreateView, DetailView, DeleteView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.decorators.csrf import csrf_exempt
+from django.shortcuts import get_object_or_404
 
 from django.http import Http404, JsonResponse
 
@@ -45,7 +46,7 @@ class TweetDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 @csrf_exempt
 def LikeView(request, pk):
     if request.method == "POST":
-        tweet = Tweet.objects.get(pk=pk)
+        tweet = get_object_or_404(Tweet, pk=pk)
         user = request.user
         liked = False
         like = Like.objects.filter(tweet=tweet, user=user)

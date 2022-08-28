@@ -1,7 +1,7 @@
 from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from tweets.models import Tweet
+from tweets.models import Tweet, Like
 
 User = get_user_model()
 
@@ -101,22 +101,51 @@ class TestTweetDeleteView(TestCase):
 
 
 class TestFavoriteView(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="test", email="test@test.com", password="goodpass"
+        )
+        self.client.login(username="test", password="goodpass")
+        post = {"content": "hello"}
+        self.client.post(reverse("tweets:create"), post)
+        self.tweet = Tweet.objects.get(content="hello")
+
     def test_success_post(self):
-        pass
+        response = self.client.post(reverse("tweets:like", kwargs={"pk": self.tweet.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(Like.objects.filter(tweet=self.tweet).exists())
 
     def test_failure_post_with_not_exist_tweet(self):
-        pass
+        response = self.client.post(reverse("tweets:like", kwargs={"pk": 100}))
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(Like.objects.filter(tweet=self.tweet).exists())
 
     def test_failure_post_with_favorited_tweet(self):
+        # 「いいね済み」のツイートに「いいね」すると「いいね解除」するように設計したので実施しない
         pass
 
 
 class TestUnfavoriteView(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="test", email="test@test.com", password="goodpass"
+        )
+        self.client.login(username="test", password="goodpass")
+        post = {"content": "hello"}
+        self.client.post(reverse("tweets:create"), post)
+        self.tweet = Tweet.objects.get(content="hello")
+        self.client.post(reverse("tweets:like", kwargs={"pk": self.tweet.pk}))
+
     def test_success_post(self):
-        pass
+        response = self.client.post(reverse("tweets:like", kwargs={"pk": self.tweet.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(Like.objects.filter(tweet=self.tweet).exists())
 
     def test_failure_post_with_not_exist_tweet(self):
-        pass
+        response = self.client.post(reverse("tweets:like", kwargs={"pk": 100}))
+        self.assertEqual(response.status_code, 404)
+        self.assertTrue(Like.objects.filter(tweet=self.tweet).exists())
 
     def test_failure_post_with_unfavorited_tweet(self):
+        # 「いいね済み」のツイートに「いいね」すると「いいね解除」するように設計したので(いいね解除に該当する操作がないので)実施しない
         pass
