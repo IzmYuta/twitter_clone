@@ -42,8 +42,8 @@
         }
         return response.json();
       }).then(data => {
-        changeStyles(data);
         console.log(data);
+        changeStyles(data);
       }).catch(error => {
         console.log(error);
       })
