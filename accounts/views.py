@@ -48,9 +48,16 @@ class HomeView(ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        liked_list = []
+        tweets = Tweet.objects.select_related("user").all()
+        for tweet in tweets:
+            liked = tweet.like_set.filter(user=self.request.user)
+            if liked.exists():
+                liked_list.append(tweet.id)
         ctx["followings"] = FriendShip.objects.select_related(
             "following", "followed"
         ).filter(following=self.request.user)
+        ctx["liked_list"] = liked_list
         return ctx
 
 
@@ -79,6 +86,12 @@ class UserProfileView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        liked_list = []
+        tweets = Tweet.objects.select_related("user").all()
+        for tweet in tweets:
+            liked = tweet.like_set.filter(user=self.request.user)
+            if liked.exists():
+                liked_list.append(tweet.id)
         ctx["tweets"] = (
             Tweet.objects.select_related("user")
             .filter(user=self.request.user)
@@ -94,6 +107,7 @@ class UserProfileView(LoginRequiredMixin, DetailView):
             .filter(followed=self.request.user)
             .count()
         )
+        ctx["liked_list"] = liked_list
         return ctx
 
 

@@ -1,6 +1,5 @@
 <script type="text/javascript">
-  console.log("ok")
-  const getCookie = (name) => {
+  const getCookie = name => {
     if (document.cookie && document.cookie !== "") {
       for (const cookie of document.cookie.split(";")) {
         const [key, value] = cookie.trim().split("=");
@@ -14,54 +13,36 @@
 
 
   const changeStyles = jsonResponse => {
-    selector = document.getElementsByName(jsonResponse.tweet_id);
+    const selector = document.getElementsByName(jsonResponse.tweet_id);
     if (jsonResponse.liked) {
-      $(selector).html("<i class='fas fa-lg fa-heart'></i>");
+      console.log("liked")
+      selector.innerHTML = "<i class='fas fa-lg fa-heart like-red'></i>";
+    } else {
+      console.log("not liked")
+      selector.innerHTML = "<i class='far fa-lg fa-heart'></i>";
     }
-    else {
-      $(selector).html("<i class='far fa-lg fa-heart like-red'></i>");
-    }
-    selector2 = document.getElementsByName(jsonResponse.tweet_id + "-count");
-    $(selector2).text(jsonResponse.count);
+    document.getElementsByName(jsonResponse.tweet_id + "-count").textContent = jsonResponse.count;
   }
-
-
-  // async function likefunc(event) {
-  //   const postBody = {
-  //     tweet_id: this.getAttribute("name"),
-  //   };
-  //   event.preventDefault()
-  //   const url = "{% url 'tweets:like' tweet.pk %}";
-  //   const postData = {
-  //     method: "POST",
-  //     body: JSON.stringify(postBody),
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //       "X-CSRFToken": csrftoken,
-  //     },
-  //   };
-  //   const response = await fetch(url, postData);
-  //   const json = await response.json();
-  //   changeStyles(json)
-  // };
 
 
   const likeButtons = document.querySelectorAll('#like');
   likeButtons.forEach(likeButton => {
-    likeButton.addEventListener("click", () => {
-      fetch("{% url 'tweets:like' tweet.pk %}", {
+    const tweet_id = likeButton.getAttribute("name");
+    likeButton.addEventListener("click", (event) => {
+      fetch("{% url 'tweets:like' 0 %}".replace("0", tweet_id), {
         method: "POST",
-        body: JSON.stringify(postBody),
         headers: {
-          "Content-Type": "application/json",
-          "X-CSRFToken": csrftoken,
-        }
+          'Content-Type': 'x-www-form-urlencoded',
+          'X-CSRF-TOKEN': csrftoken
+        },
+        credentials: "include"
       }).then(response => {
         if (!response.ok) {
           throw new Error('Not ok');
         }
         return response.json();
       }).then(data => {
+        changeStyles(data);
         console.log(data);
       }).catch(error => {
         console.log(error);

@@ -8,7 +8,7 @@
   {% for tweet in tweets %}
     <p>{{ tweet.user }} / {{ tweet.created_at }}</p>
     <p>{{ tweet.content }}</p>
-    <a href="{% url 'tweets:detail' tweet.pk %}">詳細</a>
+    <a href="{% url 'tweets:detail' tweet.pk %}">詳細</a>{% include 'tweets/like.html' %}<br>
   {% endfor %}
   
   <br>

@@ -2,7 +2,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, DeleteView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-
+from django.views.decorators.csrf import csrf_exempt
 
 from django.http import Http404, JsonResponse
 
@@ -42,6 +42,7 @@ class TweetDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             raise Http404
 
 
+@csrf_exempt
 def LikeView(request, pk):
     if request.method == "POST":
         tweet = Tweet.objects.get(pk=pk)
@@ -59,5 +60,5 @@ def LikeView(request, pk):
             "liked": liked,
             "count": tweet.like_set.count(),
         }
-        # if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+
         return JsonResponse(context)

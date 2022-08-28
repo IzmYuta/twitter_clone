@@ -7,4 +7,5 @@
     <a href="{% url 'tweets:delete' tweet.pk %}">削除する</a>
   {% endif %}
   <a href="{% url 'accounts:home' %}">戻る</a>
+  {% include 'tweets/scripts.html' %}
 {% endblock %}
