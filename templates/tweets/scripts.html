@@ -28,7 +28,7 @@
   const likeButtons = document.querySelectorAll('#like');
   likeButtons.forEach(likeButton => {
     const tweet_id = likeButton.getAttribute("name");
-    likeButton.addEventListener("click", (event) => {
+    likeButton.addEventListener("click", () => {
       fetch("{% url 'tweets:like' 0 %}".replace("0", tweet_id), {
         method: "POST",
         headers: {
