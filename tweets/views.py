@@ -2,7 +2,9 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, DetailView, DeleteView
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+
 from django.shortcuts import get_object_or_404
 
 from django.http import Http404, JsonResponse
@@ -43,23 +45,45 @@ class TweetDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
             raise Http404
 
 
-@csrf_exempt
-def LikeView(request, pk):
-    if request.method == "POST":
-        tweet = get_object_or_404(Tweet, pk=pk)
-        user = request.user
+@login_required
+@require_POST
+def like_view(request, pk):
+    tweet = get_object_or_404(Tweet, pk=pk)
+    user = request.user
+    liked = False
+    like = Like.objects.filter(tweet=tweet, user=user)
+    if like.exists():
+        pass
+    else:
+        like.create(tweet=tweet, user=user)
+        liked = True
+
+    context = {
+        "tweet_id": tweet.id,
+        "liked": liked,
+        "count": tweet.like_set.count(),
+    }
+
+    return JsonResponse(context)
+
+
+@login_required
+@require_POST
+def unlike_view(request, pk):
+    tweet = get_object_or_404(Tweet, pk=pk)
+    user = request.user
+    liked = False
+    like = Like.objects.filter(tweet=tweet, user=user)
+    if like.exists():
+        like.delete()
         liked = False
-        like = Like.objects.filter(tweet=tweet, user=user)
-        if like.exists():
-            like.delete()
-        else:
-            like.create(tweet=tweet, user=user)
-            liked = True
+    else:
+        pass
 
-        context = {
-            "tweet_id": tweet.id,
-            "liked": liked,
-            "count": tweet.like_set.count(),
-        }
+    context = {
+        "tweet_id": tweet.id,
+        "liked": liked,
+        "count": tweet.like_set.count(),
+    }
 
-        return JsonResponse(context)
+    return JsonResponse(context)

@@ -12,24 +12,27 @@
   const csrftoken = getCookie('csrftoken');
 
 
-  const changeStyles = jsonResponse => {
+  const changeStyles = (jsonResponse,func) => {
     const selector = document.getElementsByName(jsonResponse.tweet_id)[0];
     if (jsonResponse.liked) {
       console.log("liked")
-      selector.innerHTML = "<i class='fas fa-lg fa-heart like-red'></i>";
+      selector.outerHTML = "<button data-button=\"like\" data-url=" + "\"{% url 'tweets:unlike' 0 %}\"".replace("0", jsonResponse.tweet_id) + "name=\"{{tweet.id}}\"><i class=\"fas fa-lg fa-heart like-red\"></i></button>";
     } else {
       console.log("not liked")
-      selector.innerHTML = "<i class='far fa-lg fa-heart'></i>";
+      selector.outerHTML = "<button data-button=\"like\" data-url=" + "\"{% url 'tweets:like' 0 %}\"".replace("0", jsonResponse.tweet_id) + " name=\"{{tweet.id}}\"><i class=\"far fa-lg fa-heart\"></i></button>";
     }
     document.getElementsByName(jsonResponse.tweet_id + "-count")[0].textContent = jsonResponse.count;
+    // イベントリスナーの再設定
+    document.getElementsByName(jsonResponse.tweet_id)[0].addEventListener("click", func);
   }
 
 
   const likeButtons = document.querySelectorAll('[data-button="like"]');
   likeButtons.forEach(likeButton => {
     const tweet_id = likeButton.getAttribute("name");
-    likeButton.addEventListener("click", () => {
-      fetch(likeButton.dataset.url, {
+    const url = likeButton.dataset.url;
+    const likefunc = function () {
+      fetch(url, {
         method: "POST",
         headers: {
           'Content-Type': 'x-www-form-urlencoded',
@@ -43,10 +46,11 @@
         return response.json();
       }).then(data => {
         console.log(data);
-        changeStyles(data);
+        changeStyles(data,likefunc);
       }).catch(error => {
         console.log(error);
       })
-    })
+    }
+    likeButton.addEventListener("click", likefunc)
   })
 </script>

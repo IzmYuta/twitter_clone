@@ -1,5 +1,5 @@
 {% if tweet.id in liked_list %}
-<button data-button="like" data-url="{% url 'tweets:like' tweet.id %}" name="{{tweet.id}}"><i class="fas fa-lg fa-heart like-red"></i></button>
+<button data-button="like" data-url="{% url 'tweets:unlike' tweet.id %}" name="{{tweet.id}}"><i class="fas fa-lg fa-heart like-red"></i></button>
 {% else %}
 <button data-button="like" data-url="{% url 'tweets:like' tweet.id %}" name="{{tweet.id}}"><i class="far fa-lg fa-heart"></i></button>
 {% endif %}

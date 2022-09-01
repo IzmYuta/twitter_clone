@@ -137,12 +137,12 @@ class TestUnfavoriteView(TestCase):
         self.client.post(reverse("tweets:like", kwargs={"pk": self.tweet.pk}))
 
     def test_success_post(self):
-        response = self.client.post(reverse("tweets:like", kwargs={"pk": self.tweet.pk}))
+        response = self.client.post(reverse("tweets:unlike", kwargs={"pk": self.tweet.pk}))
         self.assertEqual(response.status_code, 200)
         self.assertFalse(Like.objects.filter(tweet=self.tweet).exists())
 
     def test_failure_post_with_not_exist_tweet(self):
-        response = self.client.post(reverse("tweets:like", kwargs={"pk": 100}))
+        response = self.client.post(reverse("tweets:unlike", kwargs={"pk": 100}))
         self.assertEqual(response.status_code, 404)
         self.assertTrue(Like.objects.filter(tweet=self.tweet).exists())
 
