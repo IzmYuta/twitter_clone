@@ -13,7 +13,7 @@
 
 
   const changeStyles = jsonResponse => {
-    const selector = document.getElementsByName(jsonResponse.tweet_id);
+    const selector = document.getElementsByName(jsonResponse.tweet_id)[0];
     if (jsonResponse.liked) {
       console.log("liked")
       selector.innerHTML = "<i class='fas fa-lg fa-heart like-red'></i>";
@@ -21,19 +21,19 @@
       console.log("not liked")
       selector.innerHTML = "<i class='far fa-lg fa-heart'></i>";
     }
-    document.getElementsByName(jsonResponse.tweet_id + "-count").textContent = jsonResponse.count;
+    document.getElementsByName(jsonResponse.tweet_id + "-count")[0].textContent = jsonResponse.count;
   }
 
 
-  const likeButtons = document.querySelectorAll('#like');
+  const likeButtons = document.querySelectorAll('[data-button="like"]');
   likeButtons.forEach(likeButton => {
     const tweet_id = likeButton.getAttribute("name");
     likeButton.addEventListener("click", () => {
-      fetch("{% url 'tweets:like' 0 %}".replace("0", tweet_id), {
+      fetch(likeButton.dataset.url, {
         method: "POST",
         headers: {
           'Content-Type': 'x-www-form-urlencoded',
-          'X-CSRF-TOKEN': csrftoken
+          'X-CSRFToken': csrftoken
         },
         credentials: "include"
       }).then(response => {
