@@ -44,12 +44,12 @@ class HomeView(ListView):
     template_name = "accounts/home.html"
     context_object_name = "tweets"
     model = Tweet
-    queryset = Tweet.objects.select_related("user").order_by("-created_at")
+    queryset = Tweet.objects.select_related("user").order_by("-created_at").prefetch_related("like_set")
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         liked_list = []
-        tweets = Tweet.objects.select_related("user").all()
+        tweets = Tweet.objects.select_related("user").all().prefetch_related("like_set")
         for tweet in tweets:
             liked = tweet.like_set.filter(user=self.request.user)
             if liked.exists():
@@ -87,9 +87,9 @@ class UserProfileView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         liked_list = []
-        tweets = Tweet.objects.select_related("user").all()
+        tweets = Tweet.objects.select_related("user").all().prefetch_related("like_set")
         for tweet in tweets:
-            liked = tweet.like_set.filter(user=self.request.user)
+            liked = tweet.like_set.filter(user=self.request.user).prefetch_related("like_set")
             if liked.exists():
                 liked_list.append(tweet.id)
         ctx["tweets"] = (
