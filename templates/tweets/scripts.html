@@ -12,30 +12,34 @@
   const csrftoken = getCookie('csrftoken');
 
 
-  const changeStyles = (jsonResponse,func) => {
+  const changeStyles = (jsonResponse) => {
     const selector = document.getElementsByName(jsonResponse.tweet_id)[0];
+    const url = selector.getAttribute('data-url');
+    const split_url = url.split('/');
     if (jsonResponse.liked) {
       console.log("liked")
-      selector.outerHTML = "<button data-button=\"like\" data-url=" + "\"{% url 'tweets:unlike' 0 %}\"".replace("0", jsonResponse.tweet_id) + "name=\"{{tweet.id}}\"><i class=\"fas fa-lg fa-heart like-red\"></i></button>";
+      unlike_url = url.replace(split_url[3], 'unlike');
+      selector.setAttribute('data-url', unlike_url);
+      selector.innerHTML = "<i class='fas fa-lg fa-heart like-red'></i>";
     } else {
       console.log("not liked")
-      selector.outerHTML = "<button data-button=\"like\" data-url=" + "\"{% url 'tweets:like' 0 %}\"".replace("0", jsonResponse.tweet_id) + " name=\"{{tweet.id}}\"><i class=\"far fa-lg fa-heart\"></i></button>";
+      like_url = url.replace(split_url[3], 'like');
+      selector.setAttribute('data-url', like_url);
+      selector.innerHTML = "<i class='far fa-lg fa-heart'></i>";
     }
     document.getElementsByName(jsonResponse.tweet_id + "-count")[0].textContent = jsonResponse.count;
-    // イベントリスナーの再設定
-    document.getElementsByName(jsonResponse.tweet_id)[0].addEventListener("click", func);
   }
 
 
   const likeButtons = document.querySelectorAll('[data-button="like"]');
   likeButtons.forEach(likeButton => {
-    const tweet_id = likeButton.getAttribute("name");
-    const url = likeButton.dataset.url;
     const likefunc = function () {
+      const tweet_id = likeButton.getAttribute("name");
+      const url = likeButton.dataset.url;
       fetch(url, {
         method: "POST",
         headers: {
-          'Content-Type': 'x-www-form-urlencoded',
+          'Content-Type': 'application/json',
           'X-CSRFToken': csrftoken
         },
         credentials: "include"
@@ -46,7 +50,7 @@
         return response.json();
       }).then(data => {
         console.log(data);
-        changeStyles(data,likefunc);
+        changeStyles(data);
       }).catch(error => {
         console.log(error);
       })
