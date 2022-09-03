@@ -121,8 +121,10 @@ class TestFavoriteView(TestCase):
         self.assertFalse(Like.objects.filter(tweet=self.tweet).exists())
 
     def test_failure_post_with_favorited_tweet(self):
-        # 「いいね済み」のツイートに「いいね」すると「いいね解除」するように設計したので実施しない
-        pass
+        self.client.post(reverse("tweets:like", kwargs={"pk": self.tweet.pk}))
+        response = self.client.post(reverse("tweets:like", kwargs={"pk": self.tweet.pk}))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Like.objects.filter(tweet=self.tweet).count(), 1)
 
 
 class TestUnfavoriteView(TestCase):
@@ -147,5 +149,6 @@ class TestUnfavoriteView(TestCase):
         self.assertTrue(Like.objects.filter(tweet=self.tweet).exists())
 
     def test_failure_post_with_unfavorited_tweet(self):
-        # 「いいね済み」のツイートに「いいね」すると「いいね解除」するように設計したので(いいね解除に該当する操作がないので)実施しない
-        pass
+        self.client.post(reverse("tweets:unlike", kwargs={"pk": self.tweet.pk}))
+        response = self.client.post(reverse("tweets:unlike", kwargs={"pk": self.tweet.pk}))
+        self.assertEqual(response.status_code, 200)
