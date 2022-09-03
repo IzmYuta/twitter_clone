@@ -3,4 +3,4 @@
 {% else %}
 <button data-button="like" data-url="{% url 'tweets:like' tweet.id %}" name="{{tweet.id}}"><i class="far fa-lg fa-heart"></i></button>
 {% endif %}
-<p name="{{tweet.id}}-count" class="count"> {{ tweet.like_set.count }} </p>
+<p name="{{tweet.id}}-count" class="count"> {{ tweet.like_count }} </p>

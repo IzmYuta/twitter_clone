@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, login, get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import LoginView, LogoutView
+from django.db.models import Count
 from django.urls import reverse_lazy, reverse
 from django.views.generic import (
     CreateView,
@@ -48,19 +49,19 @@ class HomeView(ListView):
         Tweet.objects.select_related("user")
         .order_by("-created_at")
         .prefetch_related("like_set")
+        .annotate(like_count=Count("like"))
     )
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         liked_list = []
-        tweets = Tweet.objects.select_related("user").all().prefetch_related("like_set")
-        print(tweets)
+        tweets = Tweet.objects.select_related("user").prefetch_related("like_set").all()
         for tweet in tweets:
             liked_list.extend(
-                tweet.like_set.filter(user=self.request.user)
-                .values_list("tweet_id", flat=True)
+                tweet.like_set.filter(user=self.request.user).values_list(
+                    "tweet_id", flat=True
+                )
             )
-            print(liked_list)
         ctx["followings"] = FriendShip.objects.select_related(
             "following", "followed"
         ).filter(following=self.request.user)
@@ -94,18 +95,20 @@ class UserProfileView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         liked_list = []
-        tweets = Tweet.objects.select_related("user").all().prefetch_related("like_set")
-        for tweet in tweets:
-            liked = tweet.like_set.filter(user=self.request.user).prefetch_related(
-                "like_set"
-            )
-            if liked.exists():
-                liked_list.append(tweet.id)
-        ctx["tweets"] = (
+        tweets = (
             Tweet.objects.select_related("user")
             .filter(user=self.request.user)
             .order_by("-created_at")
+            .prefetch_related("like_set")
+            .annotate(like_count=Count("like"))
         )
+        for tweet in tweets:
+            liked_list.extend(
+                tweet.like_set.filter(user=self.request.user).values_list(
+                    "tweet_id", flat=True
+                )
+            )
+        ctx["tweets"] = tweets
         ctx["followings_num"] = (
             FriendShip.objects.select_related("following", "followed")
             .filter(following=self.request.user)
