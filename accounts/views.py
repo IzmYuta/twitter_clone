@@ -65,15 +65,6 @@ class SigninView(LoginView):
     form_class = SigninForm
     template_name = "accounts/signin.html"
 
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        username = form.cleaned_data["username"]
-        password = form.cleaned_data["password"]
-        user = authenticate(self.request, username=username, password=password)
-        if user is not None:
-            login(self.request, user)
-            return response
-
 
 class SignoutView(LogoutView):
     template_name = "accounts/signin.html"
@@ -118,8 +109,8 @@ class UserProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return reverse("accounts:user_profile", kwargs={"pk": self.object.pk})
 
     def test_func(self):
-        tweet = self.get_object()
-        return self.request.user == tweet.user
+        profile = self.get_object()
+        return self.request.user == profile.user
 
 
 class FollowView(LoginRequiredMixin, TemplateView):
