@@ -13,7 +13,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.contrib import messages
 from django.shortcuts import render
 
-from .forms import LoginForm, SignUpForm, ProfileEditForm
+from .forms import SigninForm, SignUpForm, ProfileEditForm
 from .models import Profile, FriendShip
 from tweets.models import Tweet, Like
 
@@ -61,9 +61,9 @@ class HomeView(ListView):
         return ctx
 
 
-class LoginView(LoginView):
-    form_class = LoginForm
-    template_name = "accounts/login.html"
+class SigninView(LoginView):
+    form_class = SigninForm
+    template_name = "accounts/signin.html"
 
     def form_valid(self, form):
         response = super().form_valid(form)
@@ -75,8 +75,8 @@ class LoginView(LoginView):
             return response
 
 
-class LogoutView(LogoutView):
-    template_name = "accounts/login.html"
+class SignoutView(LogoutView):
+    template_name = "accounts/signin.html"
 
 
 class UserProfileView(LoginRequiredMixin, DetailView):
