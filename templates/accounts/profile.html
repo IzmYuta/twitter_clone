@@ -1,18 +1,20 @@
 {% extends 'base.html' %}
 {% block content %}
-  <h1>プロフィール</h1>
-  <p>Gender：{{ profile.get_gender_display }}</p>
-  <p>Self Introduction：{{ profile.self_intro }}</p>
-  <p>フォロー：<a href="{% url 'accounts:following_list' user.username %}">{{ followings_num }}</a> / フォロワー：<a href="{% url 'accounts:follower_list' user.username %}">{{ followers_num }}</a></p>
+<h1>プロフィール</h1>
+<p>Gender：{{ profile.get_gender_display }}</p>
+<p>Self Introduction：{{ profile.self_intro }}</p>
+<p>フォロー：<a href="{% url 'accounts:following_list' user.username %}">{{ followings_num }}</a> / フォロワー：<a
+    href="{% url 'accounts:follower_list' user.username %}">{{ followers_num }}</a></p>
 
-  {% for tweet in tweets %}
-    <p>{{ tweet.user }} / {{ tweet.created_at }}</p>
-    <p>{{ tweet.content }}</p>
-    <a href="{% url 'tweets:detail' tweet.pk %}">詳細</a>
-  {% endfor %}
-  
-  <br>
-  <a href="{% url 'accounts:home' %}">ホーム</a>
-  <a href="{% url 'accounts:user_profile_edit' user.pk %}">編集</a>
-  <a href="{% url 'accounts:logout' %}">ログアウト</a>
+{% for tweet in tweets %}
+<p>{{ tweet.user }} / {{ tweet.created_at }}</p>
+<p>{{ tweet.content }}</p>
+<a href="{% url 'tweets:detail' tweet.pk %}">詳細</a>{% include 'tweets/like.html' %}<br>
+{% endfor %}
+
+<br>
+<a href="{% url 'accounts:home' %}">ホーム</a>
+<a href="{% url 'accounts:user_profile_edit' user.pk %}">編集</a>
+<a href="{% url 'accounts:signout' %}">ログアウト</a>
+{% include 'tweets/scripts.html' %}
 {% endblock %}

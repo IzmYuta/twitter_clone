@@ -13,9 +13,10 @@ from django.http import Http404, HttpResponseRedirect
 from django.contrib import messages
 from django.shortcuts import render
 
-from .forms import LoginForm, SignUpForm, ProfileEditForm
+from .forms import SigninForm, SignUpForm, ProfileEditForm
 from .models import Profile, FriendShip
-from tweets.models import Tweet
+from tweets.models import Tweet, Like
+
 
 User = get_user_model()
 
@@ -43,32 +44,30 @@ class HomeView(ListView):
     template_name = "accounts/home.html"
     context_object_name = "tweets"
     model = Tweet
-    queryset = Tweet.objects.select_related("user").order_by("-created_at")
+    queryset = (
+        Tweet.objects.select_related("user")
+        .prefetch_related("like_set")
+        .order_by("-created_at")
+    )
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx["followings"] = FriendShip.objects.select_related(
             "following", "followed"
         ).filter(following=self.request.user)
+        ctx["liked_list"] = Like.objects.filter(user=self.request.user).values_list(
+            "tweet", flat=True
+        )
         return ctx
 
 
-class LoginView(LoginView):
-    form_class = LoginForm
-    template_name = "accounts/login.html"
-
-    def form_valid(self, form):
-        response = super().form_valid(form)
-        username = form.cleaned_data["username"]
-        password = form.cleaned_data["password"]
-        user = authenticate(self.request, username=username, password=password)
-        if user is not None:
-            login(self.request, user)
-            return response
+class SigninView(LoginView):
+    form_class = SigninForm
+    template_name = "accounts/signin.html"
 
 
-class LogoutView(LogoutView):
-    template_name = "accounts/login.html"
+class SignoutView(LogoutView):
+    template_name = "accounts/signin.html"
 
 
 class UserProfileView(LoginRequiredMixin, DetailView):
@@ -78,11 +77,13 @@ class UserProfileView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx["tweets"] = (
+        tweets = (
             Tweet.objects.select_related("user")
             .filter(user=self.request.user)
+            .prefetch_related("like_set")
             .order_by("-created_at")
         )
+        ctx["tweets"] = tweets
         ctx["followings_num"] = (
             FriendShip.objects.select_related("following", "followed")
             .filter(following=self.request.user)
@@ -92,6 +93,9 @@ class UserProfileView(LoginRequiredMixin, DetailView):
             FriendShip.objects.select_related("following", "followed")
             .filter(followed=self.request.user)
             .count()
+        )
+        ctx["liked_list"] = Like.objects.filter(user=self.request.user).values_list(
+            "tweet", flat=True
         )
         return ctx
 
@@ -105,11 +109,8 @@ class UserProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return reverse("accounts:user_profile", kwargs={"pk": self.object.pk})
 
     def test_func(self):
-        if Profile.objects.filter(pk=self.kwargs["pk"]).exists():
-            current_user = self.request.user
-            return current_user.pk == self.kwargs["pk"]
-        else:
-            raise Http404
+        profile = self.get_object()
+        return self.request.user == profile.user
 
 
 class FollowView(LoginRequiredMixin, TemplateView):
