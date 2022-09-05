@@ -194,7 +194,7 @@ class TestHomeView(TestCase):
         self.user = User.objects.create_user(
             username="test", email="test@test.com", password="goodpass"
         )
-        self.client.signin(username="test", password="goodpass")
+        self.client.login(username="test", password="goodpass")
         post = {"content": "hello"}
         post2 = {"content": "sorry"}
         self.client.post(reverse("tweets:create"), post)
@@ -265,7 +265,7 @@ class TestLogoutView(TestCase):
         self.user = User.objects.create_user(
             username="test", email="test@test.com", password="goodpass"
         )
-        self.client.signin(username="test", password="goodpass")
+        self.client.login(username="test", password="goodpass")
 
     def test_success_get(self):
         response = self.client.get(reverse("accounts:signout"))
