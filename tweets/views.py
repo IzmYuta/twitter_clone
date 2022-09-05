@@ -7,7 +7,7 @@ from django.views.decorators.http import require_POST
 
 from django.shortcuts import get_object_or_404
 
-from django.http import Http404, JsonResponse
+from django.http import JsonResponse
 
 from .forms import TweetForm
 from .models import Tweet, Like
@@ -37,12 +37,8 @@ class TweetDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     success_url = reverse_lazy("accounts:home")
 
     def test_func(self):
-        if Tweet.objects.filter(pk=self.kwargs["pk"]).exists():
-            current_user = self.request.user
-            tweet_user = Tweet.objects.get(pk=self.kwargs["pk"]).user
-            return current_user.pk == tweet_user.pk
-        else:
-            raise Http404
+        tweet = self.get_object()
+        return self.request.user == tweet.user
 
 
 @login_required

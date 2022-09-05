@@ -118,11 +118,8 @@ class UserProfileEditView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return reverse("accounts:user_profile", kwargs={"pk": self.object.pk})
 
     def test_func(self):
-        if Profile.objects.filter(pk=self.kwargs["pk"]).exists():
-            current_user = self.request.user
-            return current_user.pk == self.kwargs["pk"]
-        else:
-            raise Http404
+        tweet = self.get_object()
+        return self.request.user == tweet.user
 
 
 class FollowView(LoginRequiredMixin, TemplateView):
