@@ -49,14 +49,13 @@ class TweetDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 @require_POST
 def like_view(request, pk):
     tweet = get_object_or_404(Tweet, pk=pk)
-    liked = False
     Like.objects.get_or_create(tweet=tweet, user=request.user)
     liked = True
 
     context = {
         "tweet_id": tweet.id,
         "liked": liked,
-        "count": tweet.like_set.prefetch_related("like_set").count(),
+        "count": tweet.like_set.count(),
     }
 
     return JsonResponse(context)
@@ -75,7 +74,7 @@ def unlike_view(request, pk):
     context = {
         "tweet_id": tweet.id,
         "liked": liked,
-        "count": tweet.like_set.prefetch_related("like_set").count(),
+        "count": tweet.like_set.count(),
     }
 
     return JsonResponse(context)
