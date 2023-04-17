@@ -85,7 +85,7 @@ DATABASES = {
         "USER": "postgres",  # データベースに接続するユーザー名
         "PASSWORD": "TtG7h3hswFg8c8ErDXdI",  # データベースに接続する際のパスワード
         "HOST": "containers-us-west-136.railway.app",
-        "PORT": "6618",
+        "PORT": "6618", 
     }
 }
 
