@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-x+hlabr82)0gfep+bo%6nsehz_n%5_w4*9u*pd9tllw10dj1s1
 DEBUG = True
 
 ALLOWED_HOSTS = ["forgetful-produce-production.up.railway.app"]
-
+CSRF_TRUSTED_ORIGINS = ["https://forgetful-produce-production.up.railway.app"]
 
 # Application definition
 
