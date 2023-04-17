@@ -3,3 +3,4 @@ black
 flake8
 isort
 gunicorn
+psycopg2-binary

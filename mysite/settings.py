@@ -80,8 +80,12 @@ WSGI_APPLICATION = "mysite.wsgi.application"
 
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "railway",  # データベース名
+        "USER": "postgres",  # データベースに接続するユーザー名
+        "PASSWORD": "TtG7h3hswFg8c8ErDXdI",  # データベースに接続する際のパスワード
+        "HOST": "containers-us-west-136.railway.app",
+        "PORT": "6618",
     }
 }
 
