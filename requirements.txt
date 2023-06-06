@@ -2,5 +2,4 @@ Django~=4.0
 black
 flake8
 isort
-gunicorn
-psycopg2-binary
+
